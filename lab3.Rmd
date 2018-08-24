@@ -3,10 +3,11 @@ title: "In-class Lab 3"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
 date: "August 30, 2018"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
+bibliography: biblio.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -57,7 +58,7 @@ beta0 <- mean(df$math10)-beta1*mean(df$expend)
 ```
 
 ## Visualizing Regression Estimates
-Often, it's helpful to visualize your regression model. We can do this with the following code:
+Often, it's helpful to visualize the estimated regression model. @wooldridge calls this the "Sample Regression Function." We can do this with the following code:
 ```{r}
 ggplot(df,aes(expend,math10)) +
     geom_point() +
@@ -113,4 +114,4 @@ And the standard error of the slope coefficient (`logexpend` in this case) is:
 ```{r}
 sqrt(sig^2/SSTx)
 ```
-<!--- # References --->
+# References

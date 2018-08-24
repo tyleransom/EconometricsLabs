@@ -3,9 +3,9 @@ title: "In-class Lab 1"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
 date: "August 23, 2018"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
