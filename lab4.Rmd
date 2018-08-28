@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 The purpose of this in-class lab is to further practice your regression skills. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas. 
 
 ## For starters
-Open up a new R script (named `ICL3_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
+Open up a new R script (named `ICL4_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 # Add names of group members HERE
 library(tidyverse)
