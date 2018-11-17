@@ -1,0 +1,479 @@
+\documentclass[10pt,landscape]{article}
+\usepackage{multicol}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage{amsmath}
+\usepackage{lipsum}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{threeparttable}
+\usepackage[landscape]{geometry}
+
+\definecolor{oucrimson}{RGB}{132,22,23} % OU crimson
+% \definecolor{navy}{RGB}{132,22,23} % OU crimson
+
+
+\usepackage{hyperref}
+\hypersetup{
+    unicode=true,
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    bookmarksopenlevel=3,
+    breaklinks=true,
+    pdfborder={0 0 0},
+    colorlinks,
+    citecolor=oucrimson,
+    filecolor=oucrimson,
+    linkcolor=oucrimson,
+    urlcolor=oucrimson
+}
+
+% \makeatletter
+% \renewcommand\verbatim@font{\itshape}
+% \makeatother
+
+% \makeatletter
+% \renewcommand\verbatim@font{\itshape}
+% \makeatother
+
+
+% To make this come out properly in landscape mode, do one of the following
+% 1.
+%  pdflatex latexsheet.tex
+%
+% 2.
+%  latex latexsheet.tex
+%  dvips -P pdf  -t landscape latexsheet.dvi
+%  ps2pdf latexsheet.ps
+
+
+% If you're reading this, be prepared for confusion.  Making this was
+% a learning experience for me, and it shows.  Much of the placement
+% was hacked in; if you make it better, let me know...
+
+
+% This sets page margins to .5 inch if using letter paper, and to 1cm
+% if using A4 paper. (This probably isn't strictly necessary.)
+% If using another size paper, use default 1cm margins.
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+	{ \geometry{top=.5in,left=.5in,right=.5in,bottom=.5in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+
+% Turn off header and footer
+\pagestyle{empty}
+ 
+
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+
+% Define BibTeX command
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+
+% -----------------------------------------------------------------------
+
+\begin{document}
+
+\raggedright
+\footnotesize
+\begin{multicols}{3}
+
+
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\begin{center}
+     {\Large{\textbf{Econometrics in R's \texttt{tidyverse}}}} \\
+     
+     {\footnotesize by Tyler Ransom, University of Oklahoma}
+     
+     {\footnotesize \href{https://www.twitter.com/tyleransom}{\makeatletter @tyleransom \makeatother}}
+\end{center}
+
+\section{Basics of R}
+R can be thought of as a really fancy calculator
+
+\smallskip{}
+
+\textbf{Packages:}\\
+\begin{itemize}
+    \item R comes with a lot of functionality out-of-the-box
+    \item Other functionality requires the user to load packages
+    \item One-time installation: \verb!install.packages("tidyverse")!
+    \item Each time you open R: \verb!library(tidyverse)!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Commenting:}\\
+\begin{itemize}
+    \item Use \verb!#! to make a comment
+    \item This tells R to ignore that code
+    \item[] \verb!# My name is Tyler!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Assignment operator:}\\
+\begin{itemize}
+    \item Use \verb!<-! to store a calculation, e.g. \verb!x <- 3! (``$x=3$'')
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Pipe operator:}\\
+\begin{itemize}
+    \item Use \verb!%>%! to ``pipe'' objects
+    \item[] \verb!y <- mean(log(x))! becomes \verb!y <- x %>% log %>% mean!
+    \item \verb!%<>%! pipes forward, then backwards
+    \item[] \verb!x <- mean(log(x))! is same as \verb!x %<>% log %>% mean!
+\end{itemize}
+
+\section{Working with Data}
+R's fundamental data object is a \textbf{data frame}
+
+\smallskip{}
+
+Like spreadsheets, stores data in columns and rows
+
+\smallskip{}
+
+\verb!tidyverse! uses \textbf{tibbles} (enhanced data frames)
+\begin{itemize}
+    \item[] \verb!df <- as_tibble(mtcars)!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Reading in data}\\
+\begin{itemize}
+    \item Many functions for reading in different types of data
+    \item[] \verb!df <- read_csv("myfile.csv")! (comma separated)
+    \item[] \verb!df <- read_fwf("myfile.dat")! (fixed-width)
+    \item More details: see \href{https://rawgit.com/rstudio/cheatsheets/master/data-import.pdf}{Data Importing Cheat Sheet}
+    \item \verb!haven! package: import foreign files (e.g. SAS, Stata, ...)
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Accessing columns of data}\\
+\begin{itemize}
+    \item To reference a column in a tibble, use \verb!$!
+    \item[] \verb!df$mpg!
+    \item[] \verb!mean(df$mpg)! will return sample avg of \verb!mpg! variable
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Missing values}\\
+\begin{itemize}
+    \item Missing values are indicated by \verb!NA!
+    \item Some commands won't automatically drop \verb!NA! values
+    \item For these cases, use \verb!na.rm! option
+    \item[] \verb!mean(df$mpg, na.rm=TRUE)!
+    \item[] \verb!df$mpg %>% mean(na.rm=TRUE)! (equivalent)
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Removing columns and rows from a tibble}\\
+\begin{itemize}
+    \item To keep columns in a tibble, use \verb!select()!
+    \item[] \verb!df1 <- df %>% select(mpg,disp,hp,gear,carb)!
+    \item To remove rows from a tibble, use \verb!filter()!
+    \item[] \verb!df1 %<>% filter(mpg>=10)!
+    \item To remove columns, put a minus in front
+    \item[] \verb!df1 <- df %>% select(-mpg,-disp)!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Creating new columns in a tibble}\\
+\begin{itemize}
+    \item To create a new column in a tibble, use \verb!mutate()!
+    \item[] \verb!df1 %<>% mutate(mpg.squared = mpg^2)!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Working with discrete variables}\\
+\begin{itemize}
+    \item Discrete variables often require special treatment
+    \item In R, declare discrete variables as \textbf{factors}
+    \item[] \verb!df %<>% mutate(gear = as.factor(gear))!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Other data manipulations}\\
+\begin{itemize}
+    \item See \href{https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf}{Data Wrangling Cheat Sheet}
+\end{itemize}
+
+\section{Getting to know your data}
+It's important to know what's in your data by
+\begin{enumerate}
+    \item Looking at summary statistics
+    \item Performing cross-tabulations
+    \item Visualizing certain variables
+\end{enumerate}
+
+\smallskip{}
+
+\textbf{Summary statistics}\\
+\begin{itemize}
+    \item Report quartiles, min/max, mean, and \#\verb!NA!'s:
+    \item[] \verb!summary(df)!
+    \item Report N (total non-missing), mean, SD, min/max:
+    \item[] \verb!df %>% as.data.frame %>% stargazer(type="text")!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Cross-tabulations}\\
+\begin{itemize}
+    \item Report frequencies of a discrete variable:
+    \item[] \verb!table(df$gear)!
+    \item Average $y$ by categories of a discrete $x$ variable:
+    \item[] \verb!df %>% group_by(gear) %>% !
+    \item[] \verb!summarize(m.mpg = mean(mpg))!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Visualization}\\
+\begin{itemize}
+    \item Often helpful to look at a histogram or line graph
+    \item Histogram (continuous $x$):
+    \item[] \verb!ggplot(df, aes(mpg)) + geom_histogram()!
+    \item Histogram (factor $x$):
+    \item[] \verb!ggplot(df,aes(x=gear)) + geom_bar()!
+    \item Kernel density plot:
+    \item[] \verb!ggplot(df, aes(mpg)) + geom_density()!
+    \item Simple scatter plot with linear fit:
+    \item[] \verb!ggplot(df,aes(disp,mpg)) + geom_point() +!
+    \item[] \verb!geom_smooth(method="lm")!
+    \item More details: see \href{https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf}{ggplot2 Cheat Sheet}
+\end{itemize}
+
+
+\section{Regression modeling}
+
+\smallskip{}
+
+\textbf{Basic OLS regression}\\
+\begin{itemize}
+    \item Regression:
+    \item[] \verb!est <- lm(mpg ~ gear + hp, data=df)!
+    \item Examine regression output:
+    \item[] \verb!summary(est)!
+    \item[] \verb!tidy(est)!
+    \item[] \verb!stargazer(est,type="text")!
+    \item Other functional forms:
+    \item[] \verb!est <- lm(mpg ~ gear + I(gear^2), data=df)!
+    \item[] \verb!est <- lm(log(mpg) ~ gear + I(gear^2), data=df)!
+    \item Factor variables automatically get separate intercepts
+\end{itemize}
+
+\smallskip{}
+
+\textbf{$t$-statics and $F$-statistics}\\
+\begin{itemize}
+    \item $t$-stats, $p$-values reported in regression output
+    \item $F$-test:
+    \item[] \verb!linearHypothesis(est,c("gear","hp"))!
+    \item[] tests $H_0: \beta_{gear} = 0, \beta_{hp}=0$
+    \item[] \verb!linearHypothesis(est,c("gear=5","hp=-1"))!
+    \item[] tests $H_0: \beta_{gear} = 5, \beta_{hp}=-1$
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Robust standard errors}\\
+\begin{itemize}
+    \item Correct for heteroskedasticity:
+    \item[] \verb!est %>% coeftest(vcov=hccm) %>% tidy!
+    
+    or
+    
+    \item[] \verb!fixed.est <- est %>% coeftest(vcov=hccm)!
+    \item[] \verb!stargazer(est,se=list(fixed.est[,2]),type="text")!
+    \item Correct for serial correlation:
+    \item[] \verb!fixed.est <- est %>% coeftest(vcov=NeweyWest)!
+    \item[] \verb!stargazer(est,se=list(fixed.est[,2]),type="text")!
+    \item Correct for clustering (note the underscore!):
+    \item[] \verb!fix.est <- coef_test(est, "CR1", cluster=df$carb)!
+    \item[] \verb!stargazer(est,se=list(fix.est$SE),type="text")!
+\end{itemize}
+
+
+
+
+\section{Instrumental Variables}
+
+\smallskip{}
+
+\begin{itemize}
+    \item Let \verb!drat! be the endogenous covariate
+    \item Let \verb!wt! be the instrument
+    \item Let \verb!qsec! and \verb!gear! be exogenous covariates
+    \item[] \verb!est.iv <- ivreg(mpg ~ drat + qsec + gear | !
+    \item[] \verb!wt + qsec + gear, data=df)!
+    \item Instruments come after the \verb!|! symbol
+    \item Endogenous covariates come before the \verb!|! symbol
+    \item Exogenous covariates appear on both sides of the \verb!|!
+    \item First-stage regression:
+    \item[] \verb!est.1 <- lm(drat ~ wt + qsec + gear, data=df)!
+    \item[] \verb!df %<>% mutate(drat.hat = est.1$fitted.values)!
+    \item Second-stage regression:
+    \item[] \verb!est.2 <- lm(mpg ~ drat.hat + qsec+ gear,data=df)!
+\end{itemize}
+
+
+
+
+\section{Working with time series data}
+
+\smallskip{}
+
+\begin{itemize}
+    \item Declare a time series data frame
+    \item[] \verb!df.ts <- zoo(df, order.by=df$year)!
+    \item Time series line plot:
+    \item[] \verb!ggplot(df.ts, aes(year, inf)) + geom_line()!
+    \item Simple AR(1) model:
+    \item[] \verb!est <- dynlm(inf ~ L(inf,1), data=df.ts)!
+    \item First-differences model:
+    \item[] \verb!est.diff <- dynlm(d(inf) ~ unem, data = df.ts)!
+    \item ADF test for unit root:
+    \item[] \verb!adf.test(df1.ts$inf, k=1)!
+    \item ARIMA model:
+    \item[] \verb!est.arima <- auto.arima(df.ts$inf)!
+    \item Plot $h$-period-ahead forecast intervals
+    \item[] \verb!autoplot(forecast(est.arima, h=2))!
+    \item Extended date and time functions available in \href{https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_lubridate.pdf}{\texttt{lubridate} package}
+\end{itemize}
+
+
+
+
+\section{Working with panel data}
+
+\smallskip{}
+
+\begin{itemize}
+    \item Report number of units and time periods
+    \item[] \verb!pdim(df)!
+    \item Pooled OLS model
+    \item[] \verb!est.pols <- plm(lwage ~ exper + I(exper^2) +!
+    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!model = "pooling")!
+    \item Random effects model
+    \item[] \verb!est.re <- plm(lwage ~ exper + I(exper^2) +!
+    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!model = "random")!
+    \item Fixed effects model
+    \item[] \verb!est.fe <- plm(lwage ~ exper + I(exper^2) +!
+    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!model = "within")!
+    \item First differences model
+    \item[] \verb!est.fd <- plm(lwage ~ exper + I(exper^2) +!
+    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!model = "fd")!
+\end{itemize}
+
+
+
+
+\section{Limited dependent variable models}
+
+\smallskip{}
+
+\textbf{Linear probability model (LPM):}\\
+\begin{itemize}
+    \item If $y$ is a factor, format it as a numeric
+    \item[] \verb!est.lpm <- lm(as.numeric(y) ~ x1 + x2, data=df)!
+\end{itemize}
+
+\textbf{Logit and Probit:}\\
+
+\smallskip{}
+
+In this case, $y$ should be formatted as a factor
+
+\smallskip{}
+
+\begin{itemize}
+    \item Logit:
+    \item[] \verb!est.logit <- glm(y ~ x1 + x2,!
+    \item[] \verb!family=binomial(link="logit"),data=df)!
+    \item Probit:
+    \item[] \verb!est.probit <- glm(y ~ x1 + x2,!
+    \item[] \verb!family=binomial(link="probit"),data=df)!
+\end{itemize}
+
+
+% \textcolor{white}{\lipsum[1-12]}
+
+
+
+\section{List of packages}
+The document requires the following packages:
+
+\smallskip{}
+
+\begin{multicols}{4}
+\verb!tidyverse!  \\
+\verb!magrittr!  \\
+\verb!stargazer!  \\
+\verb!broom!  \\
+\verb!car!  \\
+\verb!lmtest!  \\
+\verb!clubSandwich!  \\
+\verb!sandwich!  \\
+\verb!zoo!  \\
+\verb!dynlm!  \\
+\verb!AER!  \\
+\verb!tseries!  \\
+\verb!lubridate!  \\
+\verb!forecast!  \\
+\verb!plm!  \\
+\end{multicols}
+
+\rule{0.3\linewidth}{0.25pt}
+\scriptsize
+
+Layout by Winston Chang, \href{http://wch.github.io/latexsheet/}{http://wch.github.io/latexsheet/}
+
+
+\end{multicols}
+\end{document}

@@ -1,0 +1,680 @@
+\documentclass[10pt,landscape]{article}
+\usepackage{multicol}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage{amsmath}
+\usepackage{lipsum}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{threeparttable}
+\usepackage[landscape]{geometry}
+
+\definecolor{oucrimson}{RGB}{132,22,23} % OU crimson
+
+\usepackage{hyperref}
+\hypersetup{
+    unicode=true,
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    bookmarksopenlevel=3,
+    breaklinks=true,
+    pdfborder={0 0 0},
+    colorlinks,
+    citecolor=oucrimson,
+    filecolor=oucrimson,
+    linkcolor=oucrimson,
+    urlcolor=oucrimson
+}
+
+
+% To make this come out properly in landscape mode, do one of the following
+% 1.
+%  pdflatex latexsheet.tex
+%
+% 2.
+%  latex latexsheet.tex
+%  dvips -P pdf  -t landscape latexsheet.dvi
+%  ps2pdf latexsheet.ps
+
+
+% If you're reading this, be prepared for confusion.  Making this was
+% a learning experience for me, and it shows.  Much of the placement
+% was hacked in; if you make it better, let me know...
+
+
+% This sets page margins to .5 inch if using letter paper, and to 1cm
+% if using A4 paper. (This probably isn't strictly necessary.)
+% If using another size paper, use default 1cm margins.
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+	{ \geometry{top=.5in,left=.5in,right=.5in,bottom=.5in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+
+% Turn off header and footer
+\pagestyle{empty}
+ 
+
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+
+% Define BibTeX command
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+
+% -----------------------------------------------------------------------
+
+\begin{document}
+
+\raggedright
+\footnotesize
+\begin{multicols}{3}
+
+
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\begin{center}
+     {\Large{\textbf{Econometrics Cheat Sheet}}} \\
+     
+     {\footnotesize by Tyler Ransom, University of Oklahoma}
+     
+     {\footnotesize \href{https://www.twitter.com/tyleransom}{\makeatletter @tyleransom \makeatother}}
+\end{center}
+
+\section{Data \& Causality}
+Basics about data types and causality.
+
+\subsection{Types of data}
+\newlength{\MyLen}
+\settowidth{\MyLen}{\texttt{letterpaper}/\texttt{a4paper} \ }
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Experimental            & Data from randomized experiment \\
+Observational           & Data collected passively \\
+Cross-sectional         & Multiple units, one point in time \\
+Time series             & Single unit, multiple points in time \\
+Longitudinal (or Panel) & Multiple units followed over multiple time periods \\
+\end{tabular}
+
+\textbf{Experimental data}
+\begin{itemize}
+\item Correlation $\implies$ Causality
+\item Very rare in Social Sciences
+\end{itemize}
+
+
+
+
+
+
+\section{Statistics basics}
+We examine a \textbf{random sample} of data to learn about the population
+
+\medskip{}
+
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Random sample         &  Representative of population \\
+Parameter $(\theta)$  &  Some number describing population  \\
+Estimator of $\theta$ &  Rule assigning value of $\theta$ to sample    \\
+                      &  e.g. Sample average, $\overline{Y} = \frac{1}{N}\sum_{i=1}^{N} Y_{i}$ \\
+Estimate of $\theta$  &  What the estimator spits out \par
+                         for a particular sample $(\hat{\theta})$   \\
+Sampling distribution & Distribution of estimates \par
+                        across all possible samples \\
+Bias of estimator $W$ & $E\left(W\right)-\theta$ \\
+Efficiency            & $W$ efficient if $Var(W)<Var(\widetilde{W})$ \\
+Consistency           & $W$ consistent if $\hat{\theta}\rightarrow\theta$ as $N\rightarrow\infty$ \\
+\end{tabular}
+
+\subsection{Hypothesis testing}
+The way we answer yes/no questions about our population using a sample of data. e.g. ``Does increasing public school spending increase student achievement?''
+
+\medskip{}
+
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+null hypothesis $(H_0)$       & Typically, $H_0: \theta=0$ \\
+alt. hypothesis $(H_a)$       & Typically, $H_0: \theta\neq 0$ \\
+significance level $(\alpha)$ & Tolerance for making Type I error; \par (e.g. 10\%, 5\%, or 1\%)\\
+test statistic $(T)$          & Some function of the sample of data \\
+critical value $(c)$          & Value of $T$ such that reject $H_0$ if $\vert T \vert > c$; \par $c$ depends on $\alpha$; \par $c$ depends on if 1- or 2-sided test\\
+$p$-value                     & Largest $\alpha$ at which fail to reject $H_0$; \par reject $H_0$ if $p<\alpha$ \\
+\end{tabular}
+
+% \medskip{}
+
+% \begin{align*}
+% t = & \frac{\text{estimate} - \text{null}}{\text{std. err.}} \\
+% \end{align*}
+
+\section{Simple Regression Model}
+Regression is useful because we can estimate a \textit{ceteris paribus} relationship between some variable $x$ and our outcome $y$
+
+\begin{align*}
+y=\beta_{0}+\beta_{1}x+u
+\end{align*}
+
+We want to estimate $\hat{\beta}_1$, which gives us the effect of $x$ on $y$.
+
+\subsection{OLS formulas}
+To estimate $\hat{\beta}_0$ and $\hat{\beta}_1$, we make two assumptions:
+\begin{enumerate}
+\item $E\left(u\right) = 0$
+\item $E\left(u\vert x\right) = E\left(u\right)$ for all $x$
+\end{enumerate}
+
+When these hold, we get the following formulas:
+\begin{align*}
+\hat{\beta}_{0}&=\overline{y}-\hat{\beta}_{1}\overline{x} \\
+\hat{\beta}_{1}&=\frac{\widehat{Cov}\left(y,x\right)}{\widehat{Var}\left(x\right)}
+\end{align*}
+
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+fitted values $(\hat{y}_i)$     & $\hat{y}_{i} = \hat{\beta}_0 + \hat{\beta}_1 x_{i}$ \\
+residuals $(\hat{u}_i)$         & $\hat{u}_{i} = y_{i} - \hat{y}_i$ \\
+Total Sum of Squares            & $SST=\sum_{i=1}^{N}(y_{i}-\overline{y})^{2}$ \\
+Expl. Sum of Squares            & $SSE =\sum_{i=1}^{N}(\hat{y}_{i}-\overline{y})^{2}$\\
+Resid. Sum of Squares           & $SSR =\sum_{i=1}^{N}\hat{u}_{i}^{2}$\\
+$R$-squared ($R^2$)             & $R^{2}=\frac{SSE}{SST}$; \par ``frac. of var. in $y$ explained by $x$''\\
+\end{tabular}
+
+\subsection{Algebraic properties of OLS estimates}
+\begin{enumerate}
+    \item[] $\sum_{i=1}^{N}\hat{u}_{i}=0$ (mean \& sum of residuals is zero)
+    \item[] $\sum_{i=1}^{N}x_{i}\hat{u}_{i}=0$ (zero covariance bet. $x$ and resids.)
+    \item[] The OLS line (SRF) always passes through $\left(\overline{x},\overline{y}\right)$
+    \item[] $SSE + SSR = SST$
+    \item[] $0 \leq R^2 \leq 1$
+\end{enumerate}
+
+\subsection{Interpretation and functional form}
+\begin{itemize}
+    \item[] Our model is restricted to be \textbf{linear in parameters}
+    \item[] But not linear in $x$
+    \item[] Other functional forms can give more realistic model
+\end{itemize}
+
+\begin{center}
+\begin{threeparttable}
+\begin{tabular}{@{}l@{}c@{}c@{}l@{}}
+    \toprule
+    Model       & DV        & RHS        & Interpretation of $\beta_1$ \\ \midrule
+    Level-level & $y$       & $x$         & $\phantom{\%}\Delta y = \beta_1 \Delta x$ \\
+    Level-log   & $y$       & $\phantom{\%}\log(x)\phantom{\%}$   & $\phantom{\%}\Delta y = \left(\beta_1 / 100\right)\left[1\%\Delta x\right]\phantom{\%}$ \\
+    Log-level   & $\phantom{\%}\log(y)\phantom{\%}$ & $x$         & $\%\Delta y = \left(100\beta_1\right)\Delta x$ \\
+    Log-log     & $\log(y)$ & $\log(x)$   & $\%\Delta y = \beta_1 \%\Delta x$ \\
+    Quadratic   & $y$       & $x+x^2$     & $\phantom{\%}\Delta y = \left(\beta_1+2\beta_2 x\right)\Delta x$ \\ \bottomrule
+\end{tabular}
+\scriptsize Note: $\text{DV }=\text{ dependent variable}$; $\text{RHS }=\text{ right hand side}$
+\end{threeparttable}
+\end{center}
+
+\section{Multiple Regression Model}
+Multiple regression is more useful than simple regression because we can more plausibly estimate \textit{ceteris paribus} relationships (i.e. $E\left(u\vert x\right) = E\left(u\right)$ is more plausible)
+\begin{align*}
+y=\beta_{0}+\beta_{1}x_1+\cdots+\beta_{k}x_k+u
+\end{align*}
+
+$\hat{\beta}_1,\ldots,\hat{\beta}_k$: \textbf{partial effect} of each of the $x$'s on $y$
+
+\begin{align*}
+\hat{\beta}_{0}&=\overline{y}-\hat{\beta}_{1}\overline{x}_1-\cdots-\hat{\beta}_{k}\overline{x}_k \\
+\hat{\beta}_{j}&=\frac{\widehat{Cov}\left(y,\text{residualized }x_{j}\right)}{\widehat{Var}\left(\text{residualized }x_{j}\right)}
+\end{align*}
+
+where ``residualized $x_j$'' means the residuals from OLS regression of $x_j$ on all other $x$'s (i.e. $x_1, \ldots, x_{j-1}, x_{j+1}, \ldots x_k$)
+    
+\subsection{Gauss-Markov Assumptions}
+\begin{enumerate}
+    \item $y$ is a linear function of the $\beta$'s
+    \item $y$ and $x$'s are randomly sampled from population
+    \item No perfect multicollinearity
+    \item $E\left(u\vert x_1, \ldots, x_k\right) = E\left(u\right) = 0$ (Unconfoundedness)
+    \item $Var\left(u\vert x_1, \ldots, x_k\right) = Var\left(u\right) = \sigma^2$ (Homoskedasticity)
+\end{enumerate}
+
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+When (1)-(4) hold: & OLS is unbiased; i.e. $E(\hat{\beta}_j) = \beta_j$ \\
+When (1)-(5) hold: & OLS is Best Linear Unbiased Estimator \\
+\end{tabular}
+
+\subsection{Variance of $u$ (a.k.a. ``error variance'')}
+\begin{align*}
+\hat{\sigma}^2 &= \frac{SSR}{N-K-1} \\
+               &= \frac{1}{N-K-1}\sum_{i=1}^N \hat{u}_i^2
+\end{align*}
+
+\subsection{Variance and Standard Error of $\hat{\beta}_j$}
+\begin{equation*}
+Var(\hat{\beta}_{j})=\frac{\sigma ^{2}}{SST_{j}(1-R_{j}^{2})}\text{, }%
+j=1,2,...,k
+\end{equation*}
+where
+\begin{align*}
+SST_{j}&=(N-1)Var(x_j) = \sum_{i=1}^N (x_{ij} - \overline{x}_j)\\
+R_{j}^{2} &= R^2 \text{ from a regression of } x_j \text{ on all other } x \text{'s}
+\end{align*}
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Standard deviation: & $\sqrt{Var}$ \\
+Standard error:     & $\sqrt{\widehat{Var}}$ \\
+\end{tabular}
+
+\begin{equation*}
+se(\hat{\beta}_{j})=\sqrt{\frac{\hat{\sigma} ^{2}}{SST_{j}(1-R_{j}^{2})}}, j=1,\ldots,k
+\end{equation*}
+
+\subsection{Classical Linear Model (CLM)}
+Add a 6th assumption to Gauss-Markov:
+\begin{enumerate}
+    \setcounter{enumi}{5}
+    \item $u$ is distributed $N\left(0,\sigma^2\right)$
+\end{enumerate}
+
+Need this to know what the \textit{distribution} of $\hat{\beta}_j$ is
+
+Otherwise, can't conduct hypothesis tests about the $\beta$'s
+
+\section{Testing Hypotheses about the $\beta$'s}
+Under A (1)-(6), can test hypotheses about the $\beta$'s
+
+\subsection{$t$-test for simple hypotheses}
+To test a simple hypothesis like
+\begin{align*}
+H_0&:\beta_j = 0\\
+H_a&: \beta_j \neq 0
+\end{align*}
+use a $t$-test:
+\begin{align*}
+t&=\frac{\hat{\beta}_j-0}{se\left(\hat{\beta}_j\right)}
+\end{align*}
+where $0$ is the null hypothesized value.
+
+\medskip{}
+
+Reject $H_0$ if $p<\alpha$ or if $\vert t \vert > c$ (See: Hypothesis testing)
+
+\subsection{$F$-test for joint hypotheses}
+Can't use a $t$-test for joint hypotheses, e.g.:
+\begin{align*}
+H_{0}&:\beta _{3}=0\text{, }\beta _{4}=0\text{, }\beta _{5}=0\\
+H_{a}&:\beta _{3}\neq0\text{ OR }\beta _{4}\neq0\text{ OR }\beta _{5}\neq0
+\end{align*}
+Instead, use $F$ statistic:
+\begin{align*}
+F=\frac{(SSR_{r}-SSR_{ur})/(df_{r}-df_{ur})}{SSR_{ur}/df_{ur}}=\frac{(SSR_{r}-SSR_{ur})/q}{SSR_{ur}/(N-k-1)}
+\end{align*}
+where
+\begin{align*}
+SSR_r    &= SSR \text{ of restricted model (if }H_0\text{ true)} \\
+SSR_{ur} &= SSR \text{ of unrestricted model (if }H_0\text{ false)} \\
+q        &= \text{\# of equalities in }H_0 \\
+N-k-1    &= \text{Deg. Freedom of unrestricted model} \\
+\end{align*}
+Reject $H_0$ if $p<\alpha$ or if $F > c$ (See: Hypothesis testing)
+
+\medskip{}
+
+Note: $F>0$, always
+
+\section{Qualitative data}
+\begin{itemize}
+    \item Can use qualitative data in our model
+    \item Must create a \textbf{dummy variable}
+    \item e.g. ``Yes'' represented by 1 and ``No'' by 0
+\end{itemize}
+
+\textbf{dummy variable trap:} Perfect collinearity that happens when too many dummy variables are included in the model
+\begin{align*}
+y &= \beta_0 + \beta_1 happy + \beta_2 not\_happy + u
+\end{align*}
+
+The above equation suffers from the dummy variable trap because units can only be ``happy'' or ``not happy,'' so including both would result in perfect collinearity with the intercept
+
+\subsection{Interpretation of dummy variables}
+Interpretation of dummy variable coefficients is always relative to the excluded category (e.g. $not\_happy$):
+\begin{align*}
+y &= \beta_0 + \beta_1 happy + \beta_2 age + u
+\end{align*}
+
+\begin{itemize}
+    \item[$\beta_1$:] avg. $y$ for those who are happy \textit{compared to} those who are unhappy, holding fixed age
+\end{itemize}
+
+\subsection{Interaction terms}
+\textbf{interaction term:} When two $x$'s are multiplied together
+\begin{align*}
+y &= \beta_0 + \beta_1 happy + \beta_2 age + \beta_3 happy \times age + u
+\end{align*}
+
+\begin{itemize}
+    \item[$\beta_3$:] difference in $age$ \textbf{slope} for those who are happy \textit{compared to} those who are unhappy
+\end{itemize}
+
+\subsection{Linear Probability Model (LPM)}
+When $y$ is a dummy variable, e.g.
+\begin{align*}
+happy &= \beta_0 + \beta_1 age + \beta_2 income + u
+\end{align*}
+
+$\beta$'s are interpreted as \textit{change in probability}:
+\begin{align*}
+\Delta\Pr(y=1) = \beta_1\Delta x
+\end{align*}
+By definition, homoskedasticity is violated in the LPM
+
+
+
+
+\section{Time Series (TS) data}
+\begin{itemize}
+    \item Observe one unit over many time periods
+    \item e.g. US quarterly GDP, 3-month T-bill rate, etc.
+    \item New G-M assumption: no serial correlation in $u_t$
+    \item Remove random sampling assumption (makes no sense)
+\end{itemize}
+
+\subsection{Two focuses of TS data}
+\begin{enumerate}
+    \item Causality (e.g. $\uparrow$ taxes $\overset{?}{\implies}$ $\downarrow$ GDP growth)
+    \item Forecasting (e.g. AAPL stock price next quarter?)
+\end{enumerate}
+
+\subsection{Requirements for TS data}
+To properly use TS data for causal inf / forecasting,\\need data free of the following elements:
+
+\medskip{}
+
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Trends: & $y$ always $\uparrow$ or $\downarrow$ every period \\
+Seasonality: & $y$ always $\uparrow$ or $\downarrow$ at regular intervals \\
+Non-stationarity:  & $y$ has a unit root; i.e. not stable \\
+\end{tabular}
+
+Otherwise, $R^2$ and $\hat{\beta}_{j}$'s are misleading
+
+\subsection{$AR(1)$ and Unit Root Processes}
+$AR(1)$ model (Auto Regressive of order 1):
+\begin{align*}
+y_t = \rho y_{t-1} + u_{t}
+\end{align*}
+Stable if $\vert\rho\vert<1$; Unit Root if $\vert\rho\vert\geq 1$
+
+``Non-stationary,'' ``Unit Root,'' ``Integrated'' are all synonymous
+\subsubsection{Correcting for Non-stationarity}
+Easiest way is to take a first difference:
+
+\medskip{}
+
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+First difference: & Use  $\Delta y = y_{t}-y_{t-1}$ instead of $y_t$ \\
+Test for unit root: & Augmented Dickey-Fuller (ADF) test \\
+$H_0$ of ADF test: & $y$ has a unit root \\
+\end{tabular}
+
+
+\subsection{TS Forecasting}
+A good forecast minimizes \textbf{forecasting error} $\hat{f}_t$:
+\begin{align*}
+\min_{f_t} E\left(e_{t+1}^{2}\vert I_t\right) = E\left[\left(y_{t+1}-f_t\right)^{2}\vert I_t\right]
+\end{align*}
+where $I_t$ is the \textbf{information set}
+
+% \medskip{}
+
+% Want a model that predicts the future as correctly as possible
+
+\medskip{}
+
+RMSE measures forecast performance (on future data):
+\begin{align*}
+\text{Root Mean Squared Error} = \sqrt{\frac{1}{m}\sum_{h=0}^{m-1} \hat{e}^2_{T+h+1} }
+\end{align*}
+
+\medskip{}
+
+Model with lowest RMSE is best forecast
+
+\begin{itemize}
+    \item Can choose $f_{t}$ in many ways
+    \item Basic way: $\hat{y}_{T+1}$ from linear model
+    \item ARIMA, ARMA-GARCH are cutting-edge models
+\end{itemize}
+
+\subsubsection{Granger causality}
+$z$ \textbf{Granger causes} $y$ if, after controlling for past values of $y$, past values of $z$ help forecast $y_t$
+
+
+\section{CLM violations}
+\subsubsection{Heteroskedasticity}
+\begin{itemize}
+    \item Test: Breusch-Pagan or White tests ($H_0:$ homosk.)
+    \item If $H_0$ rejected, SEs, t-, and F-stats are invalid
+    \item Instead use heterosk.-robust SEs and t- and F-stats
+\end{itemize}
+
+\subsubsection{Serial correlation}
+\begin{itemize}
+    \item Test: Breusch-Godfrey test ($H_0:$ no serial corr.)
+    \item If $H_0$ rejected, SEs, t-, and F-stats are invalid
+    \item Instead use HAC SEs and t- and F-stats
+    \item HAC: ``Heterosk. and Autocorrelation Consistent''
+\end{itemize}
+
+\subsubsection{Measurement error}
+\begin{itemize}
+    \item Measurement error in $x$ can be a violation of A4
+    \item \textbf{Attenuation bias:} $\beta_j$ biased towards 0
+\end{itemize}
+
+\subsubsection{Omitted Variable Bias}
+When an important $x$ is excluded: \textbf{omitted variable bias}.
+
+\medskip{}
+
+Bias depends on two forces:
+\begin{enumerate}
+    \item Partial effect of $x_2$ on $y$ (i.e. $\beta_2$)
+    \item Correlation between $x_2$ and $x_1$
+\end{enumerate}
+
+Which direction does the bias go?
+\begin{center}
+\begin{threeparttable}
+\begin{tabular}{@{}l@{}l@{}l@{}}
+\toprule
+& $Corr(x_{1},x_{2})>0$\phantom{\%\%\%} & $Corr(x_{1},x_{2})<0$\phantom{\%\%\%} \\ \midrule
+$\beta _{2}>0$\phantom{\%\%\%} & Positive Bias & Negative Bias \\
+$\beta _{2}<0$ & Negative Bias & Positive Bias \\ \bottomrule
+\end{tabular}
+\footnotesize Note: ``Positive bias'' means $\beta_1$ is too big; \par
+``Negative bias'' means $\beta_1$ is too small
+\end{threeparttable}
+\end{center}
+
+\subsection{How to resolve $E\left(u\vert\mathbf{x}\right)\neq 0$}
+How can we get unbiased $\hat{\beta}_j$'s when $E\left(u\vert\mathbf{x}\right)\neq 0$?
+
+\medskip{}
+
+\begin{itemize}
+    \item Include lagged $y$ as a regressor
+    \item Include proxy variables for omitted ones
+    \item Use instrumental variables
+    \item Use a natural experiment (e.g. diff-in-diff)
+    \item Use panel data
+\end{itemize}
+
+
+
+\subsubsection{Instrumental Variables (IV)}
+A variable $z$, called the instrument, satisfies:
+
+\medskip{}
+
+\begin{enumerate}
+    \item $cov\left(z,u\right) = 0$ (testable)
+    \item $cov\left(z,x\right) \neq 0$ (\textbf{not} testable)
+\end{enumerate}
+
+\medskip{}
+
+$z$ typically comes from a \textbf{natural experiment}
+
+\begin{align*}
+    \hat{\beta}_{IV} = \frac{cov\left(z,y\right)}{cov\left(z,x\right)}
+\end{align*}
+
+\begin{itemize}
+    \item SE's much larger when using IV compared to OLS
+    \item Be aware of \textbf{weak instruments}
+\end{itemize}
+
+\textbf{When there are multiple instruments:}
+
+\begin{itemize}
+    \item use Two-stage least squares (2SLS)
+    \item exclude at least as many $z$'s as endogenous $x$'s
+    \item[1st stage:] regress endogenous $x$ on $z$'s and exogenous $x$'s
+    \item[2nd stage:] regress $y$ on $\hat{x}$ and exogenous $x$'s
+\end{itemize}
+
+\textbf{Test for weak instruments:} Instrument is weak if
+
+\begin{itemize}
+    \item 1st stage $F$ stat $< 10$
+    \item or 1st stage $\vert t \vert < \sqrt{10}\approx 3.2$
+\end{itemize}
+
+\subsubsection{Difference in Differences (DiD)}
+Can get causal effects from \textbf{pooled cross sectional data}
+
+\medskip{}
+
+A nat. experiment divides units into treatment, control groups
+
+\begin{align*}
+    y_{it} = \beta_0 + \delta_0 d2_t + \beta_1 dT_{it} + \delta_1 d2_{t}\times dT_{it} + u_{it}
+\end{align*}
+where
+\begin{itemize}
+    \item $d2_t=$ dummy for being in time period 2
+    \item $dT_{it}=$ dummy for being in the treatment group
+    \item $\hat{\delta}_1=$ \textbf{difference in differences}
+\end{itemize}
+\begin{align*}
+    \hat{\delta}_1 = \left(\overline{y}_{treat,2}-\overline{y}_{control,2}\right) - \left(\overline{y}_{treat,1}-\overline{y}_{control,1}\right)
+\end{align*}
+
+\medskip{}
+
+
+\textbf{Extensions:}
+\begin{itemize}
+    \item Can also include $x$'s in the model
+    \item Can also use with more than 2 time periods
+    \item $\hat{\delta}_1$ has same interpretation, different math formula
+\end{itemize}
+
+\medskip{}
+
+\textbf{Validity:}
+\begin{itemize}
+    \item Need $y$ changing across time and treatment for reasons only due to the policy
+    \item a.k.a. \textbf{parallel trends assumption}
+\end{itemize}
+
+
+\subsubsection{Panel data}
+Follow same sample of units over multiple time periods
+\begin{align*}
+    y_{it} = \beta_0 + \beta_1 x_{it1} + \cdots + \beta_k x_{itk} + \underbrace{a_i + u_{it}}_{\nu_{it}}
+\end{align*}
+\begin{itemize}
+    \item $\nu_{it}=$ \textbf{composite error}
+    \item $a_i=$  unit-specific unobservables
+    \item $u_{it}=$ idiosyncratic error
+    \item Allow $E\left(a\vert\mathbf{x}\right)\neq 0$
+    \item Maintain $E\left(u\vert\mathbf{x}\right)= 0$
+\end{itemize}
+
+\medskip{}
+
+Four different methods of estimating $\beta_j$'s:
+\begin{enumerate}
+    \item Pooled OLS (i.e. ignore composite error)
+    \item First differences (FD):
+\begin{align*}
+    \Delta y_{i} = \beta_1 \Delta x_{i1} + \cdots + \Delta \beta_k x_{ik} + \Delta u_{i}
+\end{align*}
+estimated via Pooled OLS on transformed data
+    \item Fixed effects (FE):
+\begin{align*}
+    y_{it}-\overline{y}_{i} &= \beta_1 \left(x_{it1}-\overline{x}_{i1}\right) + \cdots \\
+    &+\beta_k \left( x_{itk}-\overline{x}_{ik}\right) + \left(u_{it}-\overline{u}_{i}\right)
+\end{align*}
+estimated via Pooled OLS on transformed data
+    \item Random effects (RE):
+\begin{align*}
+    y_{it}-\theta\overline{y}_{i} &= \beta_0 \left(1-\theta\right) + \beta_1 \left(x_{it1}-\theta\overline{x}_{i1}\right) + \cdots \\
+    &+\beta_k \left( x_{itk}-\theta\overline{x}_{ik}\right) + \left(\nu_{it}-\theta\overline{\nu}_{i}\right)
+\end{align*}
+estimated via FGLS, where
+\begin{align*}
+    \theta &= 1-\sqrt{\frac{\sigma^2_u}{\sigma^2_u + T\sigma^2_a}} \\
+    \hat{\beta}_{RE} \rightarrow \hat{\beta}_{FE} & \text{ as } \theta \rightarrow 1 \\
+    \hat{\beta}_{RE} \rightarrow \hat{\beta}_{POLS} & \text{ as } \theta \rightarrow 0 \\
+\end{align*}
+\textbf{RE assumes $E\left(a\vert\mathbf{x}\right)= 0$}
+\end{enumerate}
+
+\paragraph{Cluster-robust SEs}
+\begin{itemize}
+    \item Serial correlation of $\nu_{it}$ is a problem
+    \item Use \textbf{cluster-robust} SEs
+    \item These correct for serial corr. and heterosk.
+    \item Cluster at the unit level
+\end{itemize}
+
+
+\textcolor{white}{\lipsum[1-4]}
+
+\rule{0.3\linewidth}{0.25pt}
+\scriptsize
+
+Layout by Winston Chang, \href{http://wch.github.io/latexsheet/}{http://wch.github.io/latexsheet/}
+\end{multicols}
+\end{document}
