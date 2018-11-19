@@ -19,7 +19,7 @@
     bookmarksnumbered=true,
     bookmarksopen=true,
     bookmarksopenlevel=3,
-    breaklinks=true,
+    breaklinks=true, 
     pdfborder={0 0 0},
     colorlinks,
     citecolor=oucrimson,
@@ -209,7 +209,7 @@ Like spreadsheets, stores data in columns and rows
 \begin{itemize}
     \item To keep columns in a tibble, use \verb!select()!
     \item[] \verb!df1 <- df %>% select(mpg,disp,hp,gear,carb)!
-    \item To remove rows from a tibble, use \verb!filter()!
+    \item To keep rows in a tibble, use \verb!filter()!
     \item[] \verb!df1 %<>% filter(mpg>=10)!
     \item To remove columns, put a minus in front
     \item[] \verb!df1 <- df %>% select(-mpg,-disp)!
@@ -394,20 +394,20 @@ It's important to know what's in your data by
     \item Report number of units and time periods
     \item[] \verb!pdim(df)!
     \item Pooled OLS model
-    \item[] \verb!est.pols <- plm(lwage ~ exper + I(exper^2) +!
-    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!est.pols <- plm(lwage ~ exper + I(exper^2) +! 
+    \item[] \verb!year, data = df, index = c("id","year"),! 
     \item[] \verb!model = "pooling")!
     \item Random effects model
-    \item[] \verb!est.re <- plm(lwage ~ exper + I(exper^2) +!
-    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!est.re <- plm(lwage ~ exper + I(exper^2) +! 
+    \item[] \verb!year, data = df, index = c("id","year"),! 
     \item[] \verb!model = "random")!
     \item Fixed effects model
-    \item[] \verb!est.fe <- plm(lwage ~ exper + I(exper^2) +!
-    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!est.fe <- plm(lwage ~ exper + I(exper^2) +! 
+    \item[] \verb!year, data = df, index = c("id","year"),! 
     \item[] \verb!model = "within")!
     \item First differences model
-    \item[] \verb!est.fd <- plm(lwage ~ exper + I(exper^2) +!
-    \item[] \verb!year, data = df, index = c("id","year"),!
+    \item[] \verb!est.fd <- plm(lwage ~ exper + I(exper^2) +! 
+    \item[] \verb!year, data = df, index = c("id","year"),! 
     \item[] \verb!model = "fd")!
 \end{itemize}
 
