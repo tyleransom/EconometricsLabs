@@ -194,13 +194,14 @@ Like spreadsheets, stores data in columns and rows
 
 \smallskip{}
 
-\textbf{Missing values}\\
+\textbf{Ignore missing values}\\
 \begin{itemize}
     \item Missing values are indicated by \verb!NA!
-    \item Some commands won't automatically drop \verb!NA! values
+    \item Some commands won't automatically ignore \verb!NA! values
     \item For these cases, use \verb!na.rm! option
     \item[] \verb!mean(df$mpg, na.rm=TRUE)!
     \item[] \verb!df$mpg %>% mean(na.rm=TRUE)! (equivalent)
+    \item Otherwise, \texttt{R} would say the mean is \verb!NA!
 \end{itemize}
 
 \smallskip{}
@@ -217,10 +218,34 @@ Like spreadsheets, stores data in columns and rows
 
 \smallskip{}
 
+\textbf{Remove missing values from a tibble}\\
+\begin{itemize}
+    \item To remove \textbf{all} rows with \textit{any} \verb!NA! values, use \verb!drop_na()!
+    \item[] \verb!df1 <- df %>% drop_na()!
+    \item Can also drop \verb!NA!'s from particular columns:
+    \item[] \verb!df1 <- df %>% drop_na(gear,carb)!
+\end{itemize}
+
+\smallskip{}
+
 \textbf{Creating new columns in a tibble}\\
 \begin{itemize}
     \item To create a new column in a tibble, use \verb!mutate()!
     \item[] \verb!df1 %<>% mutate(mpg.squared = mpg^2)!
+\end{itemize}
+
+\smallskip{}
+
+\textbf{Manipulating values of a variable}\\
+\begin{itemize}
+    \item To replace (i.e. recode) values of a variable:
+    \item[] \verb!df %<>% mutate(gear = replace(gear,gear==4,99))!
+    \item[] Changes all 4's in \verb!gear! to be 99's
+    \item[] \verb!gear==4! can be any other logical condition
+    \item To specify a series of conditions, use \verb!%in%!
+    \item[] \verb!df %<>% mutate(hp =!
+    \item[] \verb!replace(hp,hp %in% c(110,120),99))!
+    \item[] Changes all 110's or 120's in \verb!hp! to be 99's
 \end{itemize}
 
 \smallskip{}
@@ -314,25 +339,28 @@ It's important to know what's in your data by
     \item[] tests $H_0: \beta_{gear} = 0, \beta_{hp}=0$
     \item[] \verb!linearHypothesis(est,c("gear=5","hp=-1"))!
     \item[] tests $H_0: \beta_{gear} = 5, \beta_{hp}=-1$
+    \item Robust $F$-test (see next section):
+    \item[] \verb!linearHypothesis(est.rob,c("gear","hp"))!
 \end{itemize}
 
 \smallskip{}
 
-\textbf{Robust standard errors}\\
+\textbf{Robust standard errors (\texttt{estimatr} package)}\\
 \begin{itemize}
     \item Correct for heteroskedasticity:
-    \item[] \verb!est %>% coeftest(vcov=hccm) %>% tidy!
+    \item[] \verb!est.rob <- lm_robust(mpg ~ gear + hp, data=df)!
     
     or
-    
-    \item[] \verb!fixed.est <- est %>% coeftest(vcov=hccm)!
-    \item[] \verb!stargazer(est,se=list(fixed.est[,2]),type="text")!
+    \item[] \verb!stargazer(est,se=starprep(est.rob),type="text")!
     \item Correct for serial correlation:
     \item[] \verb!fixed.est <- est %>% coeftest(vcov=NeweyWest)!
     \item[] \verb!stargazer(est,se=list(fixed.est[,2]),type="text")!
-    \item Correct for clustering (note the underscore!):
-    \item[] \verb!fix.est <- coef_test(est, "CR1", cluster=df$carb)!
-    \item[] \verb!stargazer(est,se=list(fix.est$SE),type="text")!
+    \item Correct for clustering:
+    \item[] \verb!est.clust <- lm_robust(mpg ~ gear + hp, data=df,!
+    \item[] \verb!clusters=df$carb)!
+    
+    or
+    \item[] \verb!stargazer(est,se=starprep(est.clust),type="text")!
 \end{itemize}
 
 
@@ -356,6 +384,9 @@ It's important to know what's in your data by
     \item[] \verb!df %<>% mutate(drat.hat = est.1$fitted.values)!
     \item Second-stage regression:
     \item[] \verb!est.2 <- lm(mpg ~ drat.hat + qsec+ gear,data=df)!
+    \item Can also use \verb!estimatr! for robust SEs:
+    \item[] \verb!est.ivr <- iv_robust(mpg ~ drat + qsec + gear | !
+    \item[] \verb!wt + qsec + gear, data=df)!
 \end{itemize}
 
 
@@ -457,6 +488,7 @@ The document requires the following packages:
 \verb!stargazer!  \\
 \verb!broom!  \\
 \verb!car!  \\
+\verb!estimatr!  \\
 \verb!lmtest!  \\
 \verb!clubSandwich!  \\
 \verb!sandwich!  \\
