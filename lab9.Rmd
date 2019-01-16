@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 9"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 25, 2018"
+date: "February 19, 2019"
 output:
   pdf_document: default
   html_document:
@@ -27,6 +27,7 @@ library(broom)
 library(wooldridge)
 library(car)
 library(lmtest)
+library(estimatr)
 library(magrittr)
 ```
 
@@ -82,10 +83,10 @@ bptest(est, ~ fitted(est) + I(fitted(est)^2) )
 1. Based on the results of each test, can you reject the null hypothesis of homoskedasticity?
 
 ### Inference with Heteroskedasticity-Robust Standard Errors
-Now let's obtain standard errors from the above regression that are robust to heteroskedasticity. To do so, we use the `coeftest()` function from the `lmtest` package, and pass it the `hccm` option, which corresponds to the refined version of White's robust standard errors.
+Now let's obtain standard errors from the above regression that are robust to heteroskedasticity. To do so, we use the `lm_robust()` function from the `estimatr` package. This function works like regular `lm()` but instead reports a refined version of White's robust standard errors.
 
 ```{r}
-tidy(coeftest(est, vcov=hccm))
+est.rob <- lm_robust(cumgpa ~ sat + hsperc + tothrs + female + black + white, data=df)
 ```
 
 2. Compare your new estimates with the original ones. Are any of the default hypothesis test results overturned?
@@ -94,7 +95,7 @@ Now look at the robust version of the overall F-test. Is its conclusion changed?
 
 ```{r}
 glance(est)
-linearHypothesis(est, c('sat','hsperc','tothrs','female','black','white'), vcov=hccm)
+linearHypothesis(est.rob, c('sat','hsperc','tothrs','female','black','white'))
 ```
 
 

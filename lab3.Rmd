@@ -1,11 +1,11 @@
 ---
 title: "In-class Lab 3"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "August 30, 2018"
+date: "January 24, 2019"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -99,8 +99,8 @@ Does
 ## Computing standard errors by hand
 If you have extra time, try computing the standard error formulas by hand, according to the formulas in the text book. To do so, we need to compute the following formulas: `sig` (the standard deviation of $u$), `n` (our regression's sample size), `SSTx` ($N-1$ times the variance of `logexpend`), and the sum of the squares of `logexpend`:
 ```{r}
-sig <- glance(est)$sigma
 n <- dim(df)[1]
+sig <- sqrt( sum (est$residuals^2) /(n-2) ) # or, more simply, glance(est)$sigma
 SSTx <- (n-1)*var(df$logexpend)
 sumx2 <- sum(df$logexpend^2)
 ```

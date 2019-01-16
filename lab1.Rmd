@@ -1,7 +1,7 @@
 ---
 title: "In-class Lab 1"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "August 23, 2018"
+date: "January 17, 2019"
 output:
   html_document:
     df_print: paged
@@ -40,6 +40,7 @@ R makes extensive use of third-party packages. We won't get into the details rig
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 install.packages("tidyverse", repos='http://cran.us.r-project.org')
+install.packages("skimr", repos='http://cran.us.r-project.org')
 install.packages("wooldridge", repos='http://cran.us.r-project.org')
 ```
 
@@ -47,6 +48,7 @@ You've just installed two packages. Basically, you've downloaded them onto your 
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(tidyverse)
+library(skimr)
 library(wooldridge)
 ```
 
@@ -59,6 +61,7 @@ To save the script, click on the disk icon at the top of your script pane (but n
 Now, put a hashtag (#) in front of the first two lines of code in your script, like so:
 ```{r}
 #install.packages("tidyverse")
+#install.packages("skimr")
 #install.packages("wooldridge")
 ```
 
@@ -88,7 +91,7 @@ Double-click on `df` in the Environment window. This will show you your data in 
 Let's look at the summary statistics of one of our variables. Suppose we want to know: What is the average years of education in our sample?
 
 ```{r}
-summary(df$educ)
+skim(df$educ)
 ```
 
 The `$` means that we are looking at the `educ` column in the tibble `df`.
@@ -98,13 +101,17 @@ In your script, write the value of the Mean of `educ`, preceded by a comment (th
 What fraction of the sample is composed of women?
 ```{r}
 mean(df$female)
+# or
+skim(df) #then look at 'female' column
+# or
+skim(df$female)
 ```
 
 
 ### Visualization
 Suppose you want to visualize the entire distribution of education. You would use the following code:
 ```{r}
-ggplot(df, aes(educ)) + geom_histogram(binwidth=1)
+ggplot(df, aes(educ)) + geom_histogram(binwidth=1)+theme_classic()
 ```
 
 In a comment, write the most common value of education (the mode of the distribution) below the code in your script.

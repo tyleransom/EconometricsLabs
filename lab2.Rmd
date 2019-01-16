@@ -1,7 +1,7 @@
 ---
 title: "In-class Lab 2"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "August 28, 2018"
+date: "January 22, 2019"
 output:
   pdf_document: default
   html_document:
@@ -20,6 +20,7 @@ The purpose of this lab is to practice using R to conduct hypothesis tests and r
 Open up a new R script (named `ICL2_XYZ.R`, where `XYZ` are your initials) and add the following to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(tidyverse)
+library(skimr)
 library(broom)
 library(wooldridge)
 ```

@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 8"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 18, 2018"
+date: "February 12, 2019"
 output:
   pdf_document: default
   html_document:
@@ -78,13 +78,17 @@ The p-values from the previous regression might indicate that the three region d
 
 3. Test the hypothesis that they don't; i.e. test 
 \[
-H_0: \text{all region dummies}=0;
+H_0: \text{all region dummies}=0; \\
 H_a: \text{any region dummy}\neq 0
 \]
 
 The code to do this again comes from the `linearHypothesis()` function. The syntax is to encolose each component hypothesis in quotes and then surround them with `c()`, which is how R creates vectors.
 ```{r}
 linearHypothesis(est, c("regionNortheast=0", "regionSouth=0", "regionWest =0"))
+```
+or, more simply,
+```{r}
+linearHypothesis(est, matchCoefs(est,"region"))
 ```
 
 Alternatively, you can perform the F-test as follows (no need to put this in your R-script; I'm just showing you how to do it "by hand"):
