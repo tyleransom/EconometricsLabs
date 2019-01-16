@@ -274,12 +274,13 @@ It's important to know what's in your data by
 
 \smallskip{}
 
-\textbf{Summary statistics}\\
+\textbf{Summary statistics (\texttt{skimr} package)}\\
 \begin{itemize}
-    \item Report quartiles, min/max, mean, and \#\verb!NA!'s:
-    \item[] \verb!summary(df)!
-    \item Report N (total non-missing), mean, SD, min/max:
-    \item[] \verb!df %>% as.data.frame %>% stargazer(type="text")!
+    \item Report quartiles, min/max, mean, sd, and \#\verb!NA!'s:
+    \item[] \verb!skim(df)!
+    
+    or
+    \item[] \verb!df %>% skim!
 \end{itemize}
 
 \smallskip{}
@@ -487,6 +488,7 @@ The document requires the following packages:
 \verb!magrittr!  \\
 \verb!stargazer!  \\
 \verb!broom!  \\
+\verb!skimr! \\
 \verb!car!  \\
 \verb!estimatr!  \\
 \verb!lmtest!  \\
