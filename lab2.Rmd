@@ -3,9 +3,9 @@ title: "In-class Lab 2"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
 date: "January 22, 2019"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 ---
 
@@ -97,7 +97,7 @@ Now suppose instead we want to test if job offer rates of blacks are *different*
 We want to test the following hypothesis:
 
 \[
-H_0: \theta_{b}=\theta_{w} \\
+H_0: \theta_{b}=\theta_{w}; \\
 H_a: \theta_{b}\neq\theta_{w}
 \]
 
