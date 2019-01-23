@@ -94,7 +94,7 @@ H_0: \beta_1 = 0, \\
 H_a: \beta_1 \neq 0
 \]
 
-Does 
+Does increased school spending significantly increase the math test pass rate?
 
 ## Computing standard errors by hand
 If you have extra time, try computing the standard error formulas by hand, according to the formulas in the text book. To do so, we need to compute the following formulas: `sig` (the standard deviation of $u$), `n` (our regression's sample size), `SSTx` ($N-1$ times the variance of `logexpend`), and the sum of the squares of `logexpend`:
