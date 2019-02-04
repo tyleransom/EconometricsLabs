@@ -102,7 +102,7 @@ Let's run a regression with `naffairs` as the dependent variable and `male`, `yr
 est1 <- lm(naffairs ~ male + yrsmarr + kids + ratemarr, data=df)
 ```
 
-Interpret the ceofficient on `ratemarrvery_happy`. 
+Interpret the coefficient on `ratemarrvery_happy`. 
 
 ## Linear Probability Model
 Let's run the same regression as before, but this time use `affair` as the dependent variable. What happens when you run the following code?
