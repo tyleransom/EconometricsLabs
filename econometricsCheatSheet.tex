@@ -3,10 +3,13 @@
 \usepackage{calc}
 \usepackage{ifthen}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{lipsum}
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{threeparttable}
+\usepackage{stackengine}
+\usepackage{scalerel}
 \usepackage[landscape]{geometry}
 
 \definecolor{oucrimson}{RGB}{132,22,23} % OU crimson
@@ -82,6 +85,18 @@
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt plus 0.5ex}
+
+% Really wide hats
+\stackMath
+\newcommand\reallywidehat[1]{%
+\savestack{\tmpbox}{\stretchto{%
+  \scaleto{%
+    \scalerel*[\widthof{\ensuremath{#1}}]{\kern-.6pt\bigwedge\kern-.6pt}%
+    {\rule[-\textheight/2]{1ex}{\textheight}}%WIDTH-LIMITED BIG WEDGE
+  }{\textheight}% 
+}{0.5ex}}%
+\stackon[1pt]{#1}{\tmpbox}%
+}
 
 
 % -----------------------------------------------------------------------
@@ -195,7 +210,7 @@ To estimate $\hat{\beta}_0$ and $\hat{\beta}_1$, we make two assumptions:
 When these hold, we get the following formulas:
 \begin{align*}
 \hat{\beta}_{0}&=\overline{y}-\hat{\beta}_{1}\overline{x} \\
-\hat{\beta}_{1}&=\frac{\widehat{Cov}\left(y,x\right)}{\widehat{Var}\left(x\right)}
+\hat{\beta}_{1}&=\frac{\reallywidehat{Cov}\left(y,x\right)}{\reallywidehat{Var}\left(x\right)}
 \end{align*}
 
 \begin{tabular}{@{}p{\the\MyLen}%
@@ -249,7 +264,7 @@ $\hat{\beta}_1,\ldots,\hat{\beta}_k$: \textbf{partial effect} of each of the $x$
 
 \begin{align*}
 \hat{\beta}_{0}&=\overline{y}-\hat{\beta}_{1}\overline{x}_1-\cdots-\hat{\beta}_{k}\overline{x}_k \\
-\hat{\beta}_{j}&=\frac{\widehat{Cov}\left(y,\text{residualized }x_{j}\right)}{\widehat{Var}\left(\text{residualized }x_{j}\right)}
+\hat{\beta}_{j}&=\frac{\reallywidehat{Cov}\left(y,\text{residualized }x_{j}\right)}{\reallywidehat{Var}\left(\text{residualized }x_{j}\right)}
 \end{align*}
 
 where ``residualized $x_j$'' means the residuals from OLS regression of $x_j$ on all other $x$'s (i.e. $x_1, \ldots, x_{j-1}, x_{j+1}, \ldots x_k$)
@@ -288,7 +303,7 @@ R_{j}^{2} &= R^2 \text{ from a regression of } x_j \text{ on all other } x \text
 \begin{tabular}{@{}p{\the\MyLen}%
                 @{}p{\linewidth-\the\MyLen}@{}}
 Standard deviation: & $\sqrt{Var}$ \\
-Standard error:     & $\sqrt{\widehat{Var}}$ \\
+Standard error:     & $\sqrt{\reallywidehat{Var}}$ \\
 \end{tabular}
 
 \begin{equation*}
@@ -302,12 +317,20 @@ Add a 6th assumption to Gauss-Markov:
     \item $u$ is distributed $N\left(0,\sigma^2\right)$
 \end{enumerate}
 
-Need this to know what the \textit{distribution} of $\hat{\beta}_j$ is
+Need this to know what the exact \textit{distribution} of $\hat{\beta}_j$ is
 
-Otherwise, need \textbf{asymptotics} to do hypothesis testing of  $\beta$'s
+\begin{itemize}
+    \item If A(6) fails, need \textbf{asymptotics} to test  $\beta$'s
+    \item Then, interpret distr. of $\hat{\beta}_j$ as asymptotic (not exact)
+\end{itemize}
+
+
 
 \section{Testing Hypotheses about the $\beta$'s}
-Under A (1)--(6),\footnote{Or, A (1)--(5) combined with asymptotic properties} can test hypotheses about the $\beta$'s
+\begin{itemize}
+    \item Under A (1)--(6), can test hypotheses about the $\beta$'s
+    \item Or, (much more plausible) A (1)--(5) $+$ asymptotics
+\end{itemize}
 
 \subsection{$t$-test for simple hypotheses}
 To test a simple hypothesis like
@@ -670,7 +693,67 @@ estimated via FGLS, where
 \end{itemize}
 
 
-\textcolor{white}{\lipsum[1-5]}
+\section{Binary dependent variables}
+Three options for estimation when $y$ is binary (0/1):
+\begin{itemize}
+    \item Linear Probability Model
+    \item Logit
+    \item Probit
+\end{itemize}
+
+Latter two are \textit{nonlinear} models:
+\begin{align*}
+    P\left(y=1\,\vert\,\mathbf{x}\right)&=G\left(\beta _{0}+\beta_{1}x_{1}+\beta_{2}x_{2}\right)
+\end{align*}
+where $G\left(\cdot\right)$ is some nonlinear function satisfying $0<G\left(\cdot\right)<1$
+
+\subsection{Trade-offs with logit/probit}
+\textbf{Disadvantages}
+\begin{itemize}
+\item Now it's much harder to estimate and interpret $\beta$'s!
+\item Can no longer use OLS; instead use maximum likelihood
+\item Nonlinear $G\left(\cdot\right)\implies$ 
+\begin{itemize}
+\item Must use chain rule to compute slope
+\item Slope of tangent line depends on $\mathbf{x}$!
+\end{itemize}
+\end{itemize}
+\textbf{Main advantage}
+\begin{itemize}
+\item Now $0 < \widehat{y} < 1 \implies$ more realistic
+\item (Recall: in LPM, possible to have negative probabilities)
+\end{itemize}
+
+\subsection{Common choices for $G\left(\cdot\right)$}
+\textbf{Logit model:}
+\begin{align*}
+G\left(\mathbf{x}\beta\right)&=\frac{\exp\left(\mathbf{x}\beta\right)}{1+\exp\left(\mathbf{x}\beta\right)}=\Lambda\left(\mathbf{x}\beta\right)
+\end{align*}
+
+
+\textbf{Probit model:}
+\begin{align*}
+G\left(\mathbf{x}\beta\right)&= \int_{-\infty}^{\mathbf{x}\beta}\phi\left(z\right)dz =\Phi\left(\mathbf{x}\beta\right)
+\end{align*}
+where $\phi\left(\cdot\right)$ is the standard normal pdf
+
+\subsection{Interpreting logit/probit parameter estimates}
+\begin{itemize}
+\item $\beta$'s that come from logit/probit $\neq$ $\beta$'s from LPM
+\item But, \textit{sign} is same
+\item In logit/probit, we have
+\begin{align*}
+\frac{\partial p\left(\mathbf{x}\right)}{\partial x_{j}}=\beta _{j}g\left(\mathbf{x}\beta\right)
+\end{align*}
+where $g\left(\mathbf{x}\beta\right)$ is the first derivative of $G\left(\mathbf{x}\beta\right)$
+\item In LPM, we have $\frac{\partial p\left(\mathbf{x}\right)}{\partial x_{j}}=\beta _{j}$
+% \begin{align*}
+% \frac{\partial p\left(\mathbf{x}\right)}{\partial x_{j}}=\beta _{j}
+% \end{align*}
+\end{itemize}
+
+
+% \textcolor{white}{\lipsum[1-3]}
 
 \rule{0.3\linewidth}{0.25pt}
 \scriptsize
