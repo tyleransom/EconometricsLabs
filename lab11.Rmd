@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 11"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "February 26, 2019"
+date: "October 6, 2020"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -14,84 +14,100 @@ bibliography: biblio.bib
 knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 ```
 
-The purpose of this in-class lab is to use R to practice estimating time series regression models and to test for serial correlation. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas.
+The purpose of this in-class lab is to use R to import data. You don't need to turn this in on Canvas, but I am hopeful that this will be a useful reference for you.
 
 ## For starters
-First, install the `pdfetch`, `zoo`, and `dynlm` packages. `pdfetch` stands for "Public Data Fetch" and is a slick way of downloading statistics on stock prices, GDP, inflation, unemployment, etc. `zoo` and `dynlm` are packages useful for working with time series data.
+First, install the `ipumsr` package. This package is useful for understanding how to import data into R, and also how to use data products from the University of Minnesota Population Center (a.k.a. IPUMS).
 
-Open up a new R script (named `ICL11_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
+Open up a new R script and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 # Add names of group members HERE
 library(tidyverse)
-library(wooldridge)
-library(broom)
-library(car)
+library(vtable)
+library(ipumsr)
+```
+
+## Types of data
+Data can come in a variety of forms. The most common are:
+
+- Comma Separated Values (CSV)
+- Fixed-width files (DAT)
+- Microsoft Excel spreadsheets (XLSX)
+- Tab Separated Values (TSV)
+- Other delimited values (e.g. semicolon-separated values, slash-separated values,
+etc.)
+- Other formats (JSON, etc.)
+
+## How to import these types of data
+In RStudio, just click "Import Dataset" on the "Environment" pane (usually in the top right hand corner of RStudio). This will open a window where you can select the file location, how the dataset is delimited, etc. In the bottom-right of this new window, it will generate code for you that will reproduce this action. **I strongly recommend you include that code in your R script moving forward.**
+
+### Working directory
+RStudio can be tricky if you don't have your working directory appropriately set. You need to put your data in a place where RStudio can find it.
+
+You can set your working directory by typing `setwd("path/to/my/directory")` or by clicking "Session" -> "Set Working Directory" and then following the prompt.
+
+#### Importing data from a URL
+You can also directly import data from a URL, if your data exists on the web somewhere. This can be convenient if you don't want to store the raw data on your personal computer.
+
+##### Example (from lab 9):
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+df.auto <- read_csv('https://tyleransom.github.io/teaching/MetricsLabs/auto.csv')
+```
+
+## Using IPUMS data
+To use data from any of the IPUMS sources (Current Population Survey, American Community Survey, etc.), you need the following four things:
+
+- Install and load the `ipumsr` package
+- Download the .DAT raw data file form the IPUMS data extracts page
+    * Note: it will download as a `.dat.gz` file
+- Download the "DDI" codebook file from the IPUMS data extracts page
+    * Note: you may need to right-click and say "save link as"
+- Copy and past the "R" command file from the IPUMS data extracts page
+
+
+The R command file is reproduced below:
+
+```{r}
+# NOTE: To load data, you must download both the extract's data and the DDI
+# and also set the working directory to the folder with these files (or change the path below).
+
+if (!require("ipumsr")) stop("Reading IPUMS data into R requires the ipumsr package. It can be installed using the following command: install.packages('ipumsr')")
+
+ddi <- read_ipums_ddi("cps_00010.xml") # filename may be different for you!
+cps_data <- read_ipums_micro(ddi)
+```
+
+### Now Explore the Data (e.g. Lab 1, Lab 2)
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+glimpse(cps_data)
+cps_data %>% vtable
+```
+
+### Using value labels
+IPUMS data in the `ipumsr` package comes pre-labeled, which is a really nice feature. For example, we can do something like
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+ipums_val_labels(cps_data$SEX)
+```
+which tells us that 1 corresponds to "Male" and 2 to "Female" with 9 being "NIU" (or "Not In Universe", another way of saying "NA").
+
+For more examples of what the `ipumsr` package can do, check out https://cloud.r-project.org/web/packages/ipumsr/vignettes/ipums.html. This will show you how to create factor variables from the labels, etc.
+
+## Using a Codebook
+When using survey data not from IPUMS, you will typically have to figure out the labels yourself:
+
+- Typically, data from surveys will have codes for categorical variables (e.g. sex, race/ethnicity, education level, etc.)
+- You will need to find the codebook on your own and figure out which codes correspond to which values
+- Often, there are "NA" codes (usually weird values like 99, 999, -99, etc.). Be on the lookout for these!
+
+## Loading data from other packages
+In Lab 10, I introduced you to the `pdfetch` package. I will now show you how to import stock price data and FRED data using this package. Note that there are other packages out there that will also do this, so feel free to look around.
+
+```{r}
 library(pdfetch)
-library(zoo)
-library(dynlm)
-library(magrittr)
+library(tsibble)
+# get data on GDP and consumption expenditures from FRED
+df <- pdfetch_FRED(c("GDPC1", "PCECC96")) # N.B. this is an object of type XTS, not tsibble
+
+# get Apple & Amazon stock price data from Yahoo Finance
+df <- pdfetch_YAHOO(c("aapl","amzn"), fields=c("adjclose","volume"))
 ```
-
-### Load the data
-We're going to use data on US macroeconomic indicators. The `wooldridge` data set is called `intdef`.
-
-```{r}
-df <- as_tibble(intdef)
-```
-
-### Declare `df` as time series data
-```{r}
-df.ts <- zoo(df, order.by=df$year)
-```
-
-Now it will be easy to include lags of various variables into our regression models.
-
-## Plot time series data
-Let's have a look at the inflation rate for the US over the period 1948--2003:
-```{r}
-ggplot(df.ts, aes(year, inf)) + geom_line()
-```
-
-## Determinants of the interest rate
-Now let's estimate the following regression model:
-\[
-i3_{t} = \beta_0 + \beta_1 inf_t + \beta_2 inf_{t-1} + \beta_3 inf_{t-2} + \beta_4 def_{t} + u_t
-\]
-where $i3$ is the 3-month Treasury Bill interest rate, $inf$ is the inflation rate (as measured by the CPI), and $def$ is the budget deficit as a percentage of GDP.
-
-```{r}
-est <- dynlm(i3 ~ inf + L(inf,1) + L(inf,2) + def, data=df.ts)
-```
-
-1. Are any of these variables significant determinants of the interest rate? If so, which ones?
-
-## Testing for Serial Correlation
-Now let's test for serial correlation in our model. Serial correlation is defined as
-\[
-u_t = \rho u_{t-1}
-\]
-with $\vert\rho\vert>0$.
-
-We want to test
-\[
-H_0: \rho = 0
-\]
-
-To do so, we need to run a regression of residuals (from `est`) on lagged residuals and look at the $t$-stat.
-
-```{r}
-resids <- resid(est)
-est.resid <- dynlm(resids ~ L(resids))
-tidy(est.resid)
-```
-
-2. What is the outcome of the hypothesis test?
-
-### When the $x$'s aren't strictly exogenous 
-When $x$ is correlated with lags of $u$, we need to modify the above test to include our $x$'s from our original regression:
-
-```{r}
-est.resid. <- dynlm(resids ~ L(resids) + inf + L(inf,1) + L(inf,2) + def, data = df.ts)
-```
-
-3. What do you conclude about serial correlation in this more general case?

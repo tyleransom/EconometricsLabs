@@ -1,7 +1,7 @@
 ---
 title: "In-class Lab 2"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "January 22, 2019"
+date: "September 1, 2020"
 output:
   html_document:
     df_print: paged
@@ -13,15 +13,15 @@ output:
 knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 ```
 
-The purpose of this lab is to practice using R to conduct hypothesis tests and run a basic OLS regression. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas. 
+The purpose of this lab is to practice using R to conduct hypothesis tests and run a basic OLS regression. The lab may be completed as a group. To get credit, upload your .R script to the appropriate place on Canvas. If done as a group, please list the names of all group members in a comment at the top of the file.
 
 
 ## For starters
 Open up a new R script (named `ICL2_XYZ.R`, where `XYZ` are your initials) and add the following to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(tidyverse)
-library(skimr)
-library(broom)
+library(vtable)
+library(broom) # you'll need to install this in the console first
 library(wooldridge)
 ```
 
@@ -36,10 +36,10 @@ The `audit` data set contains three variables: `w`, `b`, and `y`. The variables 
 
 We want to test the following hypothesis:
 
-\[
-H_0: \mu=0 \\
+\begin{equation*}
+H_0: \mu=0; \\
 H_a: \mu<0
-\]
+\end{equation*}
 where $\mu = \theta_{B}-\theta_{W}$, i.e. the difference in respective job offer rates for blacks and whites.
 
 ### The `t.test()` function in R

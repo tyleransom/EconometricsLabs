@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 4"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "January 29, 2019"
+date: "September 8, 2020"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -14,7 +14,7 @@ bibliography: biblio.bib
 knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 ```
 
-The purpose of this in-class lab is to further practice your regression skills. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas. 
+The purpose of this in-class lab is to further practice your regression skills. To get credit, upload your .R script to the appropriate place on Canvas. 
 
 ## For starters
 Open up a new R script (named `ICL4_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:

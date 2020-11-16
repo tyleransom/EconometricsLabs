@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 10"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "February 21, 2019"
+date: "October 1, 2020"
 output:
   pdf_document: default
   html_document:
@@ -14,133 +14,127 @@ bibliography: biblio.bib
 knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 ```
 
-The purpose of this in-class lab is to use R to practice computing weighted statistics and appropriately correcting for clustering in standard errors. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas. 
+The purpose of this in-class lab is to use R to practice estimating time series regression models with standard errors corrected for heteroskedasticity and serial correlation (HAC). To get credit, upload your .R script to the appropriate place on Canvas.
 
 ## For starters
-First, install the `NHANES` and `clubSandwich` packages. You won't need the `wooldridge` package for this lab.
+First, install the `pdfetch`, `tsibble`, `sandwich`, and `COVID19` packages. `pdfetch` stands for "Public Data Fetch" and is a slick way of downloading statistics on stock prices, GDP, inflation, unemployment, etc. `tsibble` is a package useful for working with time series data. It is the "tibble" for time series data. `sandiwch` is helpful for obtaining HAC standard errors. `COVID19` pulls up-to-date data on COVID-19 cases, deaths, etc.
 
 Open up a new R script (named `ICL10_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 # Add names of group members HERE
 library(tidyverse)
+library(wooldridge)
 library(broom)
 library(car)
-library(lmtest)
+library(pdfetch)
 library(magrittr)
-library(NHANES)
-library(clubSandwich)
+library(lmtest)
+library(sandwich)
+library(tsibble)
+library(COVID19)
 ```
 
 ### Load the data
-We'll use a well-known health data set called the National Health and Nutrition Examination Survey (NHANES). The data set contains 78 variables detailing the demographics and health status of 20,293 Americans. 
-
-The NHANES is *not* a random sample of the US population. Instead, the survey oversamples certain demographic groups so that it can obtain more precise measurements of their health status.
+We're going to use data on US COVID-19 cases, deaths and other information.
 
 ```{r}
-df <- as_tibble(NHANESraw)
+df <- covid19(c("US"))
+df.ts <- as_tsibble(df, key=id, index=date)
 ```
 
-Check out what's in the data by typing `View(df)` **in the console**. (Using `glimpse()` in this case is probably not a good idea because there are so many variables, but you should feel free to test it out and see if you find it useful.)
+Now it will be easy to include lags of various variables into our regression models.
 
-The main variables we're interested in are: BMI, SleepHrsNight, Age, Education, Gender, Race1, and WTINT2YR (a variable indicating each person's sampling weight). We also only want to look at observations only in the 2009-2010 survey wave.
-
-### Restrict to observations to the 2009-2010 survey wave and age 19+
-Use a `filter()` statement to keep observations where `SurveyYr` equals `2009_10`. Because `SurveyYr` is a factor, the code is a bit tricky, so I'll put it below for your reference:[^1]
+## Plot time series data
+Let's have a look at the data on new daily cases and deaths:
 ```{r}
-df %<>% filter(as.character(SurveyYr)=='2009_10' & Age>=19)
+df.ts %<>% mutate(new_deaths = difference(deaths),    # data comes in cumulative format
+                  new_tests  = difference(tests),     # "difference" converts it to
+                  new_cases  = difference(confirmed)) # "new cases" etc.
+
+# plots
+ggplot(df.ts, aes(date, new_cases)) + geom_line()
+ggplot(df.ts, aes(date, new_deaths)) + geom_line()
+
+# plots with 7-day rolling average
+ggplot(df.ts, aes(date, new_cases)) + geom_line(aes(y=rollmean(new_cases, 7, na.pad=TRUE)))
+ggplot(df.ts, aes(date, new_deaths)) + geom_line(aes(y=rollmean(new_deaths, 7, na.pad=TRUE)))
 ```
 
-### Get rid of variables you won't use
-Use a `select()` statement to keep only the variables that will be used (refer to the list above; I won't put the code here)
-```{r include=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-df %<>% select(BMI, SleepHrsNight, Age, Education, Gender, Race1, WTINT2YR)
-```
-
-### Drop missing values
-Finally, get rid of observations with missing BMI, Education, or Sleep:
-```{r}
-df %<>% filter(!is.na(Education) & !is.na(BMI) & !is.na(SleepHrsNight))
-```
-
-Look at the data to make sure the code worked as expected. You should now have 5,971 observations and 7 variables.
-
-## Computing weighted summary stats
-Suppose you are interested in the average BMI of the US population. You might be tempted to type
-```{r}
-mean(df$BMI)
-```
-but you know that NHANES is not a random sample, and that there are sampling weights included in the data.
-
-To compute the population average, you use the sampling weights like so:
-
-```{r}
-weighted.mean(df$BMI, w=df$WTINT2YR)
-```
-
-1. How different are your two answers? What is the relevant population, given that you deleted so many observations on the way to estimating the population mean? 
-
-### Regression-adjusted summary stats
-Suppose now you are interested in the male-female BMI differential, correcting for other factors (like education, race, and sleep). The easiest way to do this to estimate a regression model
+## Determinants of US COVID-19 cases
+Now let's estimate the following regression model:
 \[
-BMI = \beta_0 + \beta_1 male + \beta_2 race + \beta_3 sleep + u
+\log(new\_cases_{t}) = \beta_0 + \beta_1 gath_t + \beta_2 gath_{t-7} + \beta_3 gath_{t-14} + \beta_4 \log(new\_cases_{t-7}) + u_t
 \]
+where $new\_cases$ is the number of new COVID cases, and $gath$ is a variable taking on values 0--4 representing severity of gatherings restricitons.
+
 ```{r}
-est.unweighted <- lm(BMI ~ Gender + Race1 + SleepHrsNight, data=df)
+df.ts %<>% mutate(log.new.cases = log(new_cases),
+                  log.new.cases = replace(log.new.cases,new_cases==0,NA_real_)) # since log(0) = -Inf
+est <- lm(log.new.cases ~ gatherings_restrictions + lag(gatherings_restrictions,7) + 
+                          lag(gatherings_restrictions,14) + lag(log.new.cases,7), data=df.ts)
 ```
 
-2. Interpret your estimate of the `Gendermale` coefficient.
+1. Are any of these variables significant determinants of new COVID cases? If so, which ones?
 
-Now add weights so that your estimate lines up with the true difference in BMI in the population:
+## Correcting for Serial Correlation
+Now let's compute HAC (Heteroskedasticity and Autocorrelation Consistent) standard errors. To do so, we'll use the `NeweyWest` option in the `coeftest()` function of the `lmtest` package.[^2]
+
 ```{r}
-est.weighted <- lm(BMI ~ Gender + Race1 + SleepHrsNight, weights=WTINT2YR, data=df)
+coeftest(est) # re-display baseline results
+coeftest(est, vcov=NeweyWest)
 ```
 
-3. How does your answer change when you supply weights? What do you now conclude about the population gender differential in BMI?
+2. How does your interpretation of the interest rate model change, using the Newey-West standard errors?
 
-4. What do you notice about differentials in race and amount of sleep?
+## Oklahoma COVID cases
+```{r}
+df.ok <- covid19(c("US"),level=2) %>% filter(key_alpha_2=="OK")
+df.ts.ok <- as_tsibble(df.ok, key=id, index=date)
+df.ts.ok %<>% mutate(new_deaths = difference(deaths),
+                     new_tests  = difference(tests),
+                     new_cases  = difference(confirmed))
+ggplot(df.ts.ok, aes(date, new_cases)) + geom_line(aes(y=rollmean(new_cases, 7, na.pad=TRUE)))
+ggplot(df.ts.ok, aes(date, new_deaths)) + geom_line(aes(y=rollmean(new_deaths, 7, na.pad=TRUE)))
 
-## Inference with Cluster-Robust Standard Errors
-Now let's obtain standard errors from a different data set and regression model. that are robust to heteroskedasticity. To do so, we use the `coef_test()` function from the `clubSandwich` package.
-
-### Load new data
-First load the data, which is a CSV file from my website:
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-df.auto <- read_csv('https://tyleransom.github.io/teaching/MetricsLabs/auto.csv')
+df.ts.ok %<>% mutate(log.new.cases = log(new_cases),
+                     log.new.cases = replace(log.new.cases,new_cases==0,NA_real_)) # since log(0) = -Inf
+est <- lm(log.new.cases ~ gatherings_restrictions + lag(gatherings_restrictions,7) + 
+                          lag(gatherings_restrictions,14) + lag(log.new.cases,7), data=df.ts.ok)
 ```
 
-The data set contains specifications for 74 different makes of automobiles. Estimate the following regression model:
+With HAC standard errors:
 
+```{r}
+coeftest(est) # re-display baseline results
+coeftest(est, vcov=NeweyWest)
+```
+
+## Traditional macroeconomic model of interest rates and inflation
+### Load the data
+We can also use data on US macroeconomic indicators. The `wooldridge` data set is called `intdef`.
+
+```{r}
+df.ts <- as_tsibble(intdef, key=NULL, index=year)
+```
+
+Now it will be easy to include lags of various variables into our regression models.
+
+## Plot time series data
+Let's have a look at the inflation rate for the US over the period 1948--2003:
+```{r}
+ggplot(df.ts, aes(year, inf)) + geom_line()
+```
+
+## Determinants of the interest rate
+Now let's estimate the following regression model:
 \[
-\log(price) = \beta_0 + \beta_1 weight + \beta_2 foreign + u
+i3_{t} = \beta_0 + \beta_1 inf_t + \beta_2 inf_{t-1} + \beta_3 inf_{t-2} + \beta_4 def_{t} + u_t
 \]
+where $i3$ is the 3-month Treasury Bill interest rate, $inf$ is the inflation rate (as measured by the CPI), and $def$ is the budget deficit as a percentage of GDP.
 
 ```{r}
-df.auto %<>% mutate(log.price = log(price), foreign = as.factor(foreign))
-est.auto <- lm(log.price ~ weight + foreign, data=df.auto)
+est <- lm(i3 ~ inf + lag(inf,1) + lag(inf,2) + def, data=df.ts)
 ```
 
-Regular standard errors:
-```{r}
-tidy(est.auto)
-```
-
-Now use the heteroskedasticty-robust SEs from last lab:
-```{r}
-tidy(coeftest(est.auto, vcov=hccm))
-```
-
-Now use the cluster-robust SEs:
-```{r}
-coef_test(est.auto, vcov="CR1", cluster=df.auto$manufacturer)
-```
-
-Notice that the SEs on each of the coefficients get bigger with each additional robustness option. The reason for this is that price is correlated within auto manufacturer (due to branding effects).
-
-Finally, you can do an F-test as follows:
-```{r}
-Wald_test(est.auto, c("weight","foreignForeign"), vcov="CR1", cluster=df.auto$manufacturer)
-```
-
-# References
-
-[^1]: The trick is to convert the factor to a string variable so that you are able to match the label of the factor. Similarly, if the lables of the factor are integers, you should use `as.numeric(SurveyYr)==2009` in the `filter()` statement.
+[^1]: You may need to install the `sandwich` package.
+[^2]: `NeweyWest` comes from the `sandwich` package.

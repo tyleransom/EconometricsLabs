@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 9"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "February 19, 2019"
+date: "September 28, 2020"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -14,10 +14,10 @@ bibliography: biblio.bib
 knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 ```
 
-The purpose of this in-class lab is to use R to practice testing for the presence of heteroskedasticity in regression models. We will do this using the Breusch-Pagan and White tests. We will also use the Lagrange Multiplier (LM) test. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas. 
+The purpose of this in-class lab is to use R to practice correcting for the presence of heteroskedasticity in regression models. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas. 
 
 ## For starters
-First, install the `lmtest` package.
+First, install the `lmtest` and `estimatr` packages.
 
 Open up a new R script (named `ICL9_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -30,8 +30,6 @@ library(lmtest)
 library(estimatr)
 library(magrittr)
 ```
-
-
 
 ### Load the data
 We'll use a data set on college GPA, called `gpa3`. The data set contains a sample of 732 students.
@@ -59,39 +57,21 @@ df %<>% select(cumgpa,sat,hsperc,tothrs,female,black,white)
 ```
 Look at the data to make sure the code worked as expected. You should now have 366 observations and 7 variables.
 
-## Testing for Heteroskedasticity
-Estimate the following regression model. (I won't show you the code; refer to a previous lab if you can't remember how to do it.)
-\[
-cumpga = \beta_0 + \beta_1 sat + \beta_2 hsperc + \beta_3 tothrs + \beta_4 female + \beta_5 black + \beta_6 white + u
-\]
+### Inference with Heteroskedasticity-Robust Standard Errors
+Let's obtain standard errors from the above regression that are robust to heteroskedasticity. To do so, we use the `lm_robust()` function from the `estimatr` package. This function works like regular `lm()` but instead reports a refined version of White's robust standard errors.
+
 ```{r include=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 est <- lm(cumgpa ~ sat + hsperc + tothrs + female + black + white, data=df)
-tidy(est)
+summary(est)
 ```
-
-### Breusch-Pagan and White tests for Heteroskedasticity
-To conduct the Breusch-Pagan test for heteroskedasticity, we use the `bptest()` function from the `lmtest` package:
-```{r}
-bptest(est)
-```
-
-To do the White test, we simply modify the arguments in the `bptest()` function:
-```{r}
-bptest(est, ~ fitted(est) + I(fitted(est)^2) )
-```
-
-1. Based on the results of each test, can you reject the null hypothesis of homoskedasticity?
-
-### Inference with Heteroskedasticity-Robust Standard Errors
-Now let's obtain standard errors from the above regression that are robust to heteroskedasticity. To do so, we use the `lm_robust()` function from the `estimatr` package. This function works like regular `lm()` but instead reports a refined version of White's robust standard errors.
-
 ```{r}
 est.rob <- lm_robust(cumgpa ~ sat + hsperc + tothrs + female + black + white, data=df)
+summary(est.rob)
 ```
 
-2. Compare your new estimates with the original ones. Are any of the default hypothesis test results overturned?
+1. Compare your new estimates with the original ones (i.e with just using `lm()`). Are any of the default hypothesis test results overturned?
 
-Now look at the robust version of the overall F-test. Is its conclusion changed?
+Now look at the robust version of the overall F-test. Is its conclusion changed relative to the default with just `lm()`?
 
 ```{r}
 glance(est)
@@ -100,13 +80,13 @@ linearHypothesis(est.rob, c('sat','hsperc','tothrs','female','black','white'))
 
 
 ### The LM test
-The LM test is an alternative to the overall F test that is reported in `glimpse(est)`. To perform the LM test, we need to do the following:
+The LM test is an alternative to the overall F test that is reported in `glance(est)`. To perform the LM test, we need to do the following:
 
 - Estimate the restricted model (in the current case, this is an intercept-only model) and then obtain the residuals from that. 
 - Regress the residuals from (a) on the regressors in the full model. 
 - the LM statistic is equal to $N*R^2$ from the regression in the second bullet.
 
-3. Conduct an LM test following the steps above (also on p.159 of @wooldridge)
+2. Conduct an LM test following the steps above (also on p.173 of @wooldridge7)
 ```{r}
 # Restricted model
 restr <- lm(cumgpa ~ 1, data=df)
@@ -115,7 +95,52 @@ LM    <- nobs(LMreg)*glance(LMreg)$r.squared
 pval  <- 1-pchisq(LM,6)
 ```
 
-4. Compare the p-value from the LM test with the p-value for the overall F test (with and without heteroskedasticity-robust correction).
+3. Compare the p-value from the LM test with the p-value for the overall F test (with and without heteroskedasticity-robust correction).
+
+## Inference with Cluster-Robust Standard Errors
+Now let's obtain standard errors from a different data set and regression model that are robust to heteroskedasticity. We can use `lm_robust()` for this as well.
+
+### Load new data
+First load the data, which is a CSV file from my website:
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+df.auto <- read_csv('https://tyleransom.github.io/teaching/MetricsLabs/auto.csv')
+```
+
+The data set contains specifications for 74 different makes of automobiles. Estimate the following regression model:
+
+\[
+\log(price) = \beta_0 + \beta_1 weight + \beta_2 foreign + u
+\]
+
+```{r}
+df.auto %<>% mutate(log.price = log(price), foreign = as.factor(foreign))
+est.auto <- lm(log.price ~ weight + foreign, data=df.auto)
+```
+
+Regular standard errors:
+```{r}
+summary(est.auto)
+```
+
+Now use the heteroskedasticty-robust SEs from last lab:
+```{r}
+est.rob.auto <- lm_robust(log.price ~ weight + foreign, data=df.auto)
+summary(est.rob.auto)
+```
+
+Now use the cluster-robust SEs:
+```{r}
+est.clust.auto <- lm_robust(log.price ~ weight + foreign, data=df.auto, 
+                            clusters=df.auto$manufacturer)
+summary(est.clust.auto)
+```
+
+Notice that the SEs on each of the coefficients get bigger with each additional robustness option. The reason for this is that price is correlated within auto manufacturer (due to branding effects).
+
+Finally, you can do an F-test as follows:
+```{r}
+linearHypothesis(est.clust.auto,c("weight=0","foreignForeign=0"))
+```
 
 
 # References

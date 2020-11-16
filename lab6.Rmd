@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 6"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "February 5, 2019"
+date: "September 15, 2020"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -23,6 +23,7 @@ Open up a new R script (named `ICL6_XYZ.R`, where `XYZ` are your initials) and a
 library(tidyverse)
 library(broom)
 library(wooldridge)
+library(vtable)
 ```
 
 Also install the package `magrittr` by typing **in the console**:
@@ -38,7 +39,7 @@ library(magrittr)
 The `magrittr` package contains extra features for writing even more expressive code.
 
 ### Load the data
-We'll use a new data set on extramarital affiars, called `affairs`.
+We'll use a new data set on extramarital affairs, called `affairs`.
 ```{r}
 df <- as_tibble(affairs)
 ```
@@ -76,9 +77,9 @@ where we used multiple pipe operators (`%>%`) to do each factor recode in a sepa
 Do another `glimpse(df)` to make sure the code worked in the way I told you it would.
 
 ### Summary stats of factor variables
-You can look at the frequency of factor variables using the `table()` function:
+You can look at the frequency of factor variables using the `sumtable()` function from the `vtable` package, or by using the `table()` function:
 ```{r}
-table(df$ratemarr)
+sumtable(df)
 table(df$relig)
 table(df$ratemarr,df$kids)
 ```

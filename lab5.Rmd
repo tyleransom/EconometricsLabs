@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 5"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "January 31, 2019"
+date: "September 10, 2020"
 output:
   html_document:
     df_print: paged
