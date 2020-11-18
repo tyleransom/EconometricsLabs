@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 16"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "April 9, 2020"
+date: "November 19, 2020"
 output:
   html_document:
     df_print: paged
@@ -14,18 +14,17 @@ bibliography: biblio.bib
 knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 ```
 
-The purpose of this in-class lab is to use R to practice with difference-in-differences. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas.
+The purpose of this in-class lab is to use R to practice with difference-in-differences. To get credit, upload your .R script to the appropriate place on Canvas.
 
 ## For starters
 Open up a new R script (named `ICL16_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-# Add names of group members HERE
 library(tidyverse)
 library(wooldridge)
 library(broom)
 library(magrittr)
-library(stargazer)
-library(clubSandwich)
+library(modelsummary)
+library(estimatr)
 ```
 
 ### Load the data
@@ -57,7 +56,7 @@ The basic regression model to analyze the policy's impact is
 
 Estimate this model, calling it `est.did`. I suppress the code here, since this should be old hat by now. (Hint: recall that, for two dummy variables `x1` and `x2`, putting `x1*x2` in the `lm()` formula will include in the formula each dummy and the interaction of the two.)
 ```{r include=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-est.did <- lm(ldurat ~ afchnge*highearn, data=df)
+est.did <- lm_robust(ldurat ~ afchnge*highearn, data=df)
 ```
 
 2. Verify that your estimated $\hat{\delta}_1$ is the same as your answer in (1). Is the effect significant?
@@ -79,12 +78,12 @@ Estimate an expanded version of the basic regression modle, where the following 
 
 ```{r include=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 df %<>% mutate(indust=as.factor(indust), injtype=as.factor(injtype))
-est.did.x <- lm(ldurat ~ afchnge*highearn + male + married + age + I(age^2) + injtype + lprewage + indust, data=df)
+est.did.x <- lm_robust(ldurat ~ afchnge*highearn + male + married + age + I(age^2) + injtype + lprewage + indust, data=df)
 ```
 
 Calling `stargazer` can help view the results:
-```{r}
-stargazer(est.did,est.did.x,type="text")
+```{r, results = 'show'}
+modelsummary(list(est.did,est.did.x),output="latex")
 ```
 
 3. How different is your estimate of $\hat{\delta}_1$ from that in (2)?
