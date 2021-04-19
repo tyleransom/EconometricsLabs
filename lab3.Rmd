@@ -1,11 +1,11 @@
 ---
 title: "In-class Lab 3"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 3, 2020"
+date: "February 4, 2021"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -20,6 +20,7 @@ The purpose of this in-class lab is to practice running regressions, computing r
 Open up a new R script (named `ICL3_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(tidyverse)
+library(modelsummary)
 library(broom)
 library(wooldridge)
 ```
@@ -78,6 +79,7 @@ Now estimate your model again and re-do the visualization:
 est <- lm(math10 ~ logexpend, data=df)
 tidy(est)
 glance(est)
+modelsummary(est)
 
 ggplot(df,aes(logexpend,math10)) +
     geom_point() +

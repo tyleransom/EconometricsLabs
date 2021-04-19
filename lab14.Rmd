@@ -1,12 +1,12 @@
 ---
 title: "In-Class Lab 14"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "November 10, 2020"
+date: "April 8, 2021"
 output:
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
+  pdf_document: default
 bibliography: biblio.bib
 ---
 
@@ -36,7 +36,7 @@ library(urca)      # and this one
 
 ### Load the data
 First we'll look at the return on a 3-month treasury bill over the period of 1960q1--1990q4.
-Second, we'll read in Google's and Apple's stock price data from January 3, 2005 until November 6, 2020.
+Second, we'll read in Google's and Apple's stock price data from January 3, 2005 until April 6, 2021.
 
 ```{r}
 # T-bill rates by quarter
@@ -47,7 +47,7 @@ df1 %<>% select(r3,quarter)
 # Stock prices
 df2 <- pdfetch_YAHOO(c("goog","aapl"), fields = c("adjclose"), 
                      from = as.Date("2005-01-01"),
-                     to = as.Date("2020-11-06"),
+                     to = as.Date("2021-04-06"),
                      interval = "1d") %>%
        as.data.frame %>% rownames_to_column(var="date") %>%
        as_tibble %>% mutate(date=ymd(date)) # create date variable
@@ -101,7 +101,7 @@ modelsummary(list(est.tbill,est.goog,est.aapl))
 ## Forecasting
 Now let's use our time series data to forecast future stock prices. First, we should create a shortened version of the time series so we can compare our forecast to actual data:
 ```{r}
-df2.short    <- df2 %>% filter(year_week<yearweek("2018-10-01"))
+df2.short    <- df2 %>% filter(year_week<yearweek("2021-01-01"))
 ```
 
 ### Estimating simple ARIMA(1,1,0) models
@@ -129,5 +129,5 @@ df2 %>%
     arima = ARIMA(goog),
     snaive = SNAIVE(goog)
   ) %>%
-  forecast(h=12) %>% autoplot(filter(df2, year(year_week)>2017),level = NULL)
+  forecast(h=12) %>% autoplot(filter(df2, year(year_week)>2020),level = NULL)
 ```

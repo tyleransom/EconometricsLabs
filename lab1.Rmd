@@ -1,7 +1,7 @@
 ---
 title: "In-class Lab 1"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "August 27, 2020"
+date: "January 26, 2021"
 output:
   html_document:
     df_print: paged
@@ -40,7 +40,7 @@ R makes extensive use of third-party packages. We won't get into the details rig
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 install.packages("tidyverse", repos='http://cran.us.r-project.org')
-install.packages("vtable", repos='http://cran.us.r-project.org')
+install.packages("modelsummary", repos='http://cran.us.r-project.org')
 install.packages("wooldridge", repos='http://cran.us.r-project.org')
 ```
 
@@ -48,7 +48,7 @@ You've just installed three packages. Basically, you've downloaded them onto you
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(tidyverse)
-library(vtable)
+library(modelsummary)
 library(wooldridge)
 ```
 
@@ -61,7 +61,7 @@ To save the script, click on the disk icon at the top of your script pane (but n
 Now, put a hashtag (#) in front of the first two lines of code in your script, like so:
 ```{r}
 #install.packages("tidyverse")
-#install.packages("vtable")
+#install.packages("modelsummary")
 #install.packages("wooldridge")
 ```
 
@@ -91,7 +91,7 @@ Double-click on `df` in the Environment window. This will show you your data in 
 Let's look at the summary statistics of one of our variables. Suppose we want to know: What is the average years of education in our sample?
 
 ```{r}
-sumtable(df) #then look at 'educ' column
+datasummary_skim(df) #then look at 'educ' column
 ```
 
 In your script, write the value of the Mean of `educ`, preceded by a comment (the hashtag symbol)
@@ -100,7 +100,7 @@ What fraction of the sample is composed of women?
 ```{r}
 mean(df$female)
 # or
-sumtable(df) #then look at 'female' column
+datasummary_skim(df) #then look at 'female' column
 ```
 
 
@@ -120,7 +120,7 @@ Suppose you want to add a new variable to `df`. For example, the wage variable i
 ```{r}
 df <- df %>% mutate(realwage=wage*4.53)
 summary(df$realwage)
-sumtable(df) # then look at realwage column
+datasummary_skim(df) # then look at realwage column
 ```
 
 You can verify that `realwage` got added to `df` by clicking on the preview of `df` and scrolling all the way over to the right.

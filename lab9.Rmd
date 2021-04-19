@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 9"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 28, 2020"
+date: "March 4, 2021"
 output:
   html_document:
     df_print: paged
@@ -29,6 +29,7 @@ library(car)
 library(lmtest)
 library(estimatr)
 library(magrittr)
+library(modelsummary)
 ```
 
 ### Load the data
@@ -39,7 +40,7 @@ df <- as_tibble(gpa3)
 
 Check out what's in the data by typing
 ```{r}
-glimpse(df)
+datasummary_skim(df)
 ```
 
 The main variables we're interested in are: SAT, high school percentile, credit hours, gender and race. We also only want to look at observations that are in the Spring semester.
@@ -60,13 +61,12 @@ Look at the data to make sure the code worked as expected. You should now have 3
 ### Inference with Heteroskedasticity-Robust Standard Errors
 Let's obtain standard errors from the above regression that are robust to heteroskedasticity. To do so, we use the `lm_robust()` function from the `estimatr` package. This function works like regular `lm()` but instead reports a refined version of White's robust standard errors.
 
-```{r include=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-est <- lm(cumgpa ~ sat + hsperc + tothrs + female + black + white, data=df)
-summary(est)
-```
 ```{r}
+est <- lm(cumgpa ~ sat + hsperc + tothrs + female + black + white, data=df)
+modelsummary(est, stars = T)
+
 est.rob <- lm_robust(cumgpa ~ sat + hsperc + tothrs + female + black + white, data=df)
-summary(est.rob)
+modelsummary(list(est,est.rob), stars = TRUE)
 ```
 
 1. Compare your new estimates with the original ones (i.e with just using `lm()`). Are any of the default hypothesis test results overturned?
@@ -119,20 +119,20 @@ est.auto <- lm(log.price ~ weight + foreign, data=df.auto)
 
 Regular standard errors:
 ```{r}
-summary(est.auto)
+modelsummary(est.auto)
 ```
 
-Now use the heteroskedasticty-robust SEs from last lab:
+Now use the heteroskedasticty-robust SEs:
 ```{r}
 est.rob.auto <- lm_robust(log.price ~ weight + foreign, data=df.auto)
-summary(est.rob.auto)
+modelsummary(list(est.auto,est.rob.auto))
 ```
 
 Now use the cluster-robust SEs:
 ```{r}
 est.clust.auto <- lm_robust(log.price ~ weight + foreign, data=df.auto, 
                             clusters=df.auto$manufacturer)
-summary(est.clust.auto)
+modelsummary(list(est.auto,est.rob.auto,est.clust.auto))
 ```
 
 Notice that the SEs on each of the coefficients get bigger with each additional robustness option. The reason for this is that price is correlated within auto manufacturer (due to branding effects).

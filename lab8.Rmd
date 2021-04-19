@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 8"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 22, 2020"
+date: "February 25, 2021"
 output:
   html_document:
     df_print: paged
@@ -25,6 +25,7 @@ library(broom)
 library(wooldridge)
 library(car)
 library(magrittr)
+library(modelsummary)
 ```
 
 ### Load the data
@@ -35,7 +36,8 @@ df <- as_tibble(htv)
 
 Check out what's in the data by typing
 ```{r}
-glimpse(df)
+datasummary_df(df)
+datasummary_skim(df,histogram=FALSE)
 ```
 
 The main variables we're interested in are: wages, education, ability, parental education, and region of residence (`ne`, `nc`, `west`, and `south`).
@@ -62,6 +64,7 @@ df %<>% mutate(abilsq = abil^2)
 ```{r}
 est <- lm(educ ~ motheduc + fatheduc + abil + abilsq + region, data=df)
 tidy(est)
+modelsummary(est)
 ```
 ### t-test
 1. Test the hypothesis that $abil$ has a linear effect on $educ$.

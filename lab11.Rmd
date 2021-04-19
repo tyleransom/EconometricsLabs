@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 11"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "October 6, 2020"
+date: "March 11, 2021"
 output:
   html_document:
     df_print: paged
@@ -23,7 +23,8 @@ Open up a new R script and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 # Add names of group members HERE
 library(tidyverse)
-library(vtable)
+library(magrittr)
+library(modelsummary)
 library(ipumsr)
 ```
 
@@ -77,10 +78,20 @@ ddi <- read_ipums_ddi("cps_00010.xml") # filename may be different for you!
 cps_data <- read_ipums_micro(ddi)
 ```
 
+### Need to work with value labels before you explore the data
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+cps_data %<>% mutate(educ =             as_factor(lbl_clean(EDUC)))
+cps_data %<>% mutate(sex  = as_factor(lbl_clean(SEX)))
+cps_data %<>% mutate(age = as.numeric(AGE))
+```
+
 ### Now Explore the Data (e.g. Lab 1, Lab 2)
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-glimpse(cps_data)
-cps_data %>% vtable
+cps_data %>% select(age,educ,sex) %>%
+             datasummary_skim(histogram=F)
+cps_data %>% select(age,educ,sex) %>%
+             datasummary_skim(type="categorical",
+                              histogram=F)
 ```
 
 ### Using value labels
@@ -90,7 +101,7 @@ ipums_val_labels(cps_data$SEX)
 ```
 which tells us that 1 corresponds to "Male" and 2 to "Female" with 9 being "NIU" (or "Not In Universe", another way of saying "NA").
 
-For more examples of what the `ipumsr` package can do, check out https://cloud.r-project.org/web/packages/ipumsr/vignettes/ipums.html. This will show you how to create factor variables from the labels, etc.
+For more examples of what the `ipumsr` package can do, check out https://cloud.r-project.org/web/packages/ipumsr/vignettes/ipums.html.
 
 ## Using a Codebook
 When using survey data not from IPUMS, you will typically have to figure out the labels yourself:
@@ -110,4 +121,18 @@ df <- pdfetch_FRED(c("GDPC1", "PCECC96")) # N.B. this is an object of type XTS, 
 
 # get Apple & Amazon stock price data from Yahoo Finance
 df <- pdfetch_YAHOO(c("aapl","amzn"), fields=c("adjclose","volume"))
+```
+
+## Exporting summary stats and regression tables from `modelsummary` to Word
+You can also use `modelsummary()` and `datasummary_skim()` to easily export directly to Microsoft Word.
+
+### Now Explore the Data (e.g. Lab 1, Lab 2)
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+cps_data %>% select(age,educ,sex) %>%
+             datasummary_skim(type="categorical",
+                              histogram=F,
+                              output = "my_word_doc.docx")
+cps_data %>% select(age,educ,sex) %>%
+             datasummary_skim(histogram=F,
+                              output = "my_2nd_word_doc.docx")
 ```

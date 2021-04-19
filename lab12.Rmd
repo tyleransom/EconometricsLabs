@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 12"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "October 20, 2020"
+date: "March 25, 2021"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -28,7 +28,6 @@ library(broom)
 library(AER)
 library(magrittr)
 library(modelsummary)
-library(vtable)
 ```
 
 ### Load the data
@@ -39,9 +38,9 @@ df <- as_tibble(fertil2)
 ```
 
 ### Summary statistics
-Let's look at summary statistics of our data by using the `vtable` package. We can export this to a word document format if we'd like:
+Let's look at summary statistics of our data by using the `modelsummary` package. We can export this to a word document format if we'd like:
 ```{r, results="show"}
-df %>% sumtable(out="return")
+df %>% datasummary_skim(histogram=F,output="myfile.docx")
 ```
 
 1. What do you think is going on when you see varying numbers of observations across the different variables?
@@ -61,7 +60,7 @@ est.ols <- lm(children ~ educ + age + I(age^2), data=df)
 
 (Note: include `I(age^2)` puts the quadratic term in automatically without us having to use `mutate()` to create a new variable called `age.sq`.)
 
-We can also use stargazer to examine the output. It puts the standard errors of each variable in parentheses under the estimated coefficient.
+We can also use `modelsummary` to examine the output. It puts the standard errors of each variable in parentheses under the estimated coefficient.
 ```{r, results="show"}
 modelsummary(est.ols)
 ```
@@ -99,6 +98,7 @@ modelsummary(list(est.ols,est.iv1,est.iv))
 We can also save the output of `modelsummary()` to an image, a text file or something else:
 ```{r}
 modelsummary(list(est.ols,est.iv1,est.iv), output="results.jpg")
+modelsummary(list(est.ols,est.iv1,est.iv), output="results.docx")
 ```
 
 4. Comment on the IV estimates. Do they make sense? Discuss why the IV standard error is so much larger than the OLS standard error.

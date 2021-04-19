@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 6"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 15, 2020"
+date: "February 18, 2021"
 output:
   html_document:
     df_print: paged
@@ -23,11 +23,11 @@ Open up a new R script (named `ICL6_XYZ.R`, where `XYZ` are your initials) and a
 library(tidyverse)
 library(broom)
 library(wooldridge)
-library(vtable)
+library(modelsummary)
 ```
 
 Also install the package `magrittr` by typing **in the console**:
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r, eval=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 install.packages("magrittr", repos='http://cran.us.r-project.org')
 ```
 
@@ -46,7 +46,7 @@ df <- as_tibble(affairs)
 
 Check out what's in the data by typing
 ```{r}
-glimpse(df)
+datasummary_skim(df,histogram=FALSE)
 ```
 
 You'll notice that there are a number of variables that only take on 0/1 values: `male`, `kids`, `affair`, `hapavg`, `vryrel`, etc. There are also variables that take on a few different values: `relig`, `occup`, and `ratemarr`.
@@ -74,12 +74,12 @@ df %<>% mutate(ratemarr = factor(ratemarr),
 ```
 where we used multiple pipe operators (`%>%`) to do each factor recode in a separate step. (You could have also put them all into one giant `mutate()` statement.)
 
-Do another `glimpse(df)` to make sure the code worked in the way I told you it would.
+Do another `datasummary_skim(df,histogram=FALSE)` to make sure the code worked in the way I told you it would.
 
 ### Summary stats of factor variables
-You can look at the frequency of factor variables using the `sumtable()` function from the `vtable` package, or by using the `table()` function:
+You can look at the frequency of factor variables using the `datasummary_skim()` function from the `modelsummary` package, or by using the `table()` function:
 ```{r}
-sumtable(df)
+datasummary_skim(df, type="categorical", histogram=FALSE)
 table(df$relig)
 table(df$ratemarr,df$kids)
 ```

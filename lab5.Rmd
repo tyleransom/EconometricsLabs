@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 5"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 10, 2020"
+date: "February 11, 2021"
 output:
   html_document:
     df_print: paged
@@ -19,10 +19,10 @@ The purpose of this in-class lab is to better understand omitted variable bias a
 ## For starters
 Open up a new R script (named `ICL5_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-# Add names of group members HERE
 library(tidyverse)
 library(broom)
 library(wooldridge)
+library(modelsummary)
 ```
 
 Also install the package `car` by typing **in the console**:
@@ -46,6 +46,13 @@ df <- as_tibble(wage2)
 Check out what's in the data by typing
 ```{r}
 glimpse(df)
+# or, equivalently
+datasummary_df(df)
+```
+
+We can also look at summary statistics in the data by typing
+```{r}
+datasummary_skim(df,histogram=FALSE)
 ```
 
 ## Properties of Omitted Variables
@@ -81,6 +88,13 @@ est2$coefficients["educ"] == est3$coefficients["educ"] +
 ```
 
 (The last line returns `TRUE` if the equality holds and `FALSE` if it doesn't hold.)
+
+We can also look at the output with `modelsummary()`:
+```{r}
+modelsummary(
+             list(est1,est2,est3)
+            )
+```
 
 Is $\widetilde{\beta}_1$ larger or smaller than $\hat{\beta}_1$? What does this mean in terms of omitted variable bias?
 

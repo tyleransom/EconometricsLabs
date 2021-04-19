@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 7"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 17, 2020"
+date: "February 23, 2021"
 output:
   html_document:
     df_print: paged
@@ -14,7 +14,7 @@ bibliography: biblio.bib
 knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 ```
 
-The purpose of this in-class lab is to practice conducting hypothesis tests about regression parameters in R. The lab should be completed in your group. To get credit, upload your .R script to the appropriate place on Canvas. 
+The purpose of this in-class lab is to practice conducting hypothesis tests about regression parameters in R. The lab may be completed in a group. To get credit, upload your .R script to the appropriate place on Canvas. 
 
 ## For starters
 Open up a new R script (named `ICL7_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
@@ -24,6 +24,7 @@ library(tidyverse)
 library(broom)
 library(wooldridge)
 library(magrittr)
+library(modelsummary)
 ```
 
 ### Load the data
@@ -34,7 +35,8 @@ df <- as_tibble(rdchem)
 
 Check out what's in the data by typing
 ```{r}
-glimpse(df)
+datasummary_df(df)
+datasummary_skim(df,histogram=FALSE)
 ```
 
 The main variables are measures of R&D, profits, sales, and profits as a percentage of sales (`profmarg`, i.e. profit margin).
@@ -51,6 +53,7 @@ Note that the variable $log(sales)$ already exists in `df` as `lsales`. $rdinten
 ```{r include=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 est <- lm(rdintens ~ lsales + profmarg, data=df)
 tidy(est)
+modelsummary(est)
 ```
 Answer the following questions:
 

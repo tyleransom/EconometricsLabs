@@ -1,11 +1,11 @@
 ---
 title: "In-class Lab 2"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 1, 2020"
+date: "February 2, 2020"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
 ---
 
@@ -20,7 +20,7 @@ The purpose of this lab is to practice using R to conduct hypothesis tests and r
 Open up a new R script (named `ICL2_XYZ.R`, where `XYZ` are your initials) and add the following to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(tidyverse)
-library(vtable)
+library(modelsummary)
 library(broom) # you'll need to install this in the console first
 library(wooldridge)
 ```
@@ -150,6 +150,11 @@ glance(est)
 ```
 
 Again, there's a lot of information here, but for now just focus on the $R^2$ term reported in the first column.
+
+We can also view the output in a table format with `modelsummary()`:
+```{r results='show'}
+modelsummary(est)
+```
 
 <!--- # References --->
 [^1]: "double" means "double precision floating point" and is a computer science-y way of expressing a real number (as opposed to an integer or a rational number).

@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 4"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 8, 2020"
+date: "February 9, 2021"
 output:
   html_document:
     df_print: paged
@@ -23,6 +23,7 @@ Open up a new R script (named `ICL4_XYZ.R`, where `XYZ` are your initials) and a
 library(tidyverse)
 library(broom)
 library(wooldridge)
+library(modelsummary)
 ```
 
 For this lab, let's use data on house prices. This is located in the `hprice1`  data set in the `wooldridge` package. Each observation is a house.
@@ -32,7 +33,12 @@ df <- as_tibble(hprice1)
 
 Check out what's in `df` by typing
 ```{r}
-glimpse(hprice1)
+glimpse(df)
+```
+
+Or for some summary statistics:
+```{r}
+datasummary_skim(df,histogram=FALSE)
 ```
 
 ## Multiple Regression
@@ -44,9 +50,8 @@ where $price$ is the house price in thousands of dollars.
 
 The code to do so is:
 ```{r}
-est <- lm(price ~ sqrft + bdrms, data=df)
-tidy(est)
-glance(est)
+est1 <- lm(price ~ sqrft + bdrms, data=df)
+modelsummary(est1)
 ```
 
 You should get a coefficient of `0.128` on `sqrft` and `15.2` on `bdrms`. Interpret these coefficients. (You can type the interpretation as a comment in your .R script.) Do these numbers seem reasonable?
@@ -55,7 +60,7 @@ You should get $R^2 = 0.632$. Based on that number, do you think this is a good 
 
 Check that the average of the residuals is zero:
 ```{r}
-mean(est$residuals)
+mean(est1$residuals)
 ```
 
 ## Adding in non-linearities
@@ -70,9 +75,8 @@ df <- df %>% mutate(logprice = log(price), sqrftSq = sqrft^2, bdrmSq = bdrms^2)
 
 Now run the new model:
 ```{r}
-est <- lm(logprice ~ sqrft + sqrftSq + bdrms + bdrmSq, data=df)
-tidy(est)
-glance(est)
+est2 <- lm(logprice ~ sqrft + sqrftSq + bdrms + bdrmSq, data=df)
+modelsummary(est2)
 ```
 
 The new coefficients have much smaller magnitudes. Explain why that might be.
@@ -95,7 +99,7 @@ df <- df %>% mutate(sqrft.resid = est$residuals)
 Now, if we run a simple regression of `logprice` on `sqrft.resid` we should get the same coefficient as that of `sqrft` in the original regression (=`3.74e-4`).
 ```{r}
 est <- lm(logprice ~ sqrft.resid, data=df)
-tidy(est)
+modelsummary(est)
 ```
 
 ## Frisch-Waugh by hand

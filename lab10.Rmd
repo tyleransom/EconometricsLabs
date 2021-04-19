@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 10"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "October 1, 2020"
+date: "March 9, 2021"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -17,13 +17,14 @@ knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
 The purpose of this in-class lab is to use R to practice estimating time series regression models with standard errors corrected for heteroskedasticity and serial correlation (HAC). To get credit, upload your .R script to the appropriate place on Canvas.
 
 ## For starters
-First, install the `pdfetch`, `tsibble`, `sandwich`, and `COVID19` packages. `pdfetch` stands for "Public Data Fetch" and is a slick way of downloading statistics on stock prices, GDP, inflation, unemployment, etc. `tsibble` is a package useful for working with time series data. It is the "tibble" for time series data. `sandiwch` is helpful for obtaining HAC standard errors. `COVID19` pulls up-to-date data on COVID-19 cases, deaths, etc.
+First, install the `pdfetch`, `tsibble`, `sandwich`, and `COVID19` packages. `pdfetch` stands for "Public Data Fetch" and is a slick way of downloading statistics on stock prices, GDP, inflation, unemployment, etc. `tsibble` is a package useful for working with time series data. It is the "tibble" for time series data. `sandwich` is helpful for obtaining HAC standard errors. `COVID19` pulls up-to-date data on COVID-19 cases, deaths, etc.
 
 Open up a new R script (named `ICL10_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 # Add names of group members HERE
 library(tidyverse)
 library(wooldridge)
+library(modelsummary)
 library(broom)
 library(car)
 library(pdfetch)
@@ -77,14 +78,22 @@ est <- lm(log.new.cases ~ gatherings_restrictions + lag(gatherings_restrictions,
 1. Are any of these variables significant determinants of new COVID cases? If so, which ones?
 
 ## Correcting for Serial Correlation
-Now let's compute HAC (Heteroskedasticity and Autocorrelation Consistent) standard errors. To do so, we'll use the `NeweyWest` option in the `coeftest()` function of the `lmtest` package.[^2]
+Now let's compute HAC (Heteroskedasticity and Autocorrelation Consistent) standard errors. To do so, we'll use the `vcov` option in the `modelsummary()` function along with the `NeweyWest` function from the `sandwich` package.
 
 ```{r}
-coeftest(est) # re-display baseline results
-coeftest(est, vcov=NeweyWest)
+modelsummary(est) # re-display baseline results
+modelsummary(est, vcov=sandwich::NeweyWest(est))
 ```
 
-2. How does your interpretation of the interest rate model change, using the Newey-West standard errors?
+or, putting them side-by-side:
+
+```{r}
+modelsummary(list(est,est), 
+             vcov=list("iid",sandwich::NeweyWest(est))
+            )
+```
+
+2. How does your interpretation of the the effect of gathering restrictions change after using the Newey-West standard errors?
 
 ## Oklahoma COVID cases
 ```{r}
@@ -98,15 +107,15 @@ ggplot(df.ts.ok, aes(date, new_deaths)) + geom_line(aes(y=rollmean(new_deaths, 7
 
 df.ts.ok %<>% mutate(log.new.cases = log(new_cases),
                      log.new.cases = replace(log.new.cases,new_cases==0,NA_real_)) # since log(0) = -Inf
-est <- lm(log.new.cases ~ gatherings_restrictions + lag(gatherings_restrictions,7) + 
+est.ok <- lm(log.new.cases ~ gatherings_restrictions + lag(gatherings_restrictions,7) + 
                           lag(gatherings_restrictions,14) + lag(log.new.cases,7), data=df.ts.ok)
 ```
 
 With HAC standard errors:
 
 ```{r}
-coeftest(est) # re-display baseline results
-coeftest(est, vcov=NeweyWest)
+modelsummary(list(est.ok,est.ok),
+             vcov=list("iid",sandwich::NeweyWest(est.ok)))
 ```
 
 ## Traditional macroeconomic model of interest rates and inflation
@@ -134,7 +143,7 @@ where $i3$ is the 3-month Treasury Bill interest rate, $inf$ is the inflation ra
 
 ```{r}
 est <- lm(i3 ~ inf + lag(inf,1) + lag(inf,2) + def, data=df.ts)
+modelsummary(list(est,est), vcov=list("iid",sandwich::NeweyWest(est)))
 ```
 
 [^1]: You may need to install the `sandwich` package.
-[^2]: `NeweyWest` comes from the `sandwich` package.
