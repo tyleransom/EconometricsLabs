@@ -274,13 +274,13 @@ It's important to know what's in your data by
 
 \smallskip{}
 
-\textbf{Summary statistics (\texttt{skimr} package)}\\
+\textbf{Summary statistics (\texttt{modelsummary} package)}\\
 \begin{itemize}
     \item Report quartiles, min/max, mean, sd, and \#\verb!NA!'s:
-    \item[] \verb!skim(df)!
+    \item[] \verb!datasummary_skim(df, histogram=FALSE)!
     
     or
-    \item[] \verb!df %>% skim!
+    \item[] \verb!df %>% datasummary_skim(histogram=FALSE)!
 \end{itemize}
 
 \smallskip{}
@@ -323,7 +323,7 @@ It's important to know what's in your data by
     \item Examine regression output:
     \item[] \verb!summary(est)!
     \item[] \verb!tidy(est)!
-    \item[] \verb!stargazer(est,type="text")!
+    \item[] \verb!modelsummary(est)!
     \item Other functional forms:
     \item[] \verb!est <- lm(mpg ~ gear + I(gear^2), data=df)!
     \item[] \verb!est <- lm(log(mpg) ~ gear + I(gear^2), data=df)!
@@ -346,22 +346,20 @@ It's important to know what's in your data by
 
 \smallskip{}
 
-\textbf{Robust standard errors (\texttt{estimatr} package)}\\
+\textbf{Robust standard errors (\texttt{estimatr} and \texttt{sandwich} packages)}\\
 \begin{itemize}
     \item Correct for heteroskedasticity:
     \item[] \verb!est.rob <- lm_robust(mpg ~ gear + hp, data=df)!
-    
-    or
-    \item[] \verb!stargazer(est,se=starprep(est.rob),type="text")!
+    \item[] \verb!modelsummary(est.rob)!
+    \item[]
     \item Correct for serial correlation:
-    \item[] \verb!fixed.est <- est %>% coeftest(vcov=NeweyWest)!
-    \item[] \verb!stargazer(est,se=list(fixed.est[,2]),type="text")!
+    \item[] \verb!est <- lm(mpg ~ gear + hp, data=df)!
+    \item[] \verb!modelsummary(est, vcov=sandwich::NeweyWest(est))!
+    \item[]
     \item Correct for clustering:
     \item[] \verb!est.clust <- lm_robust(mpg ~ gear + hp, data=df,!
     \item[] \verb!clusters=df$carb)!
-    
-    or
-    \item[] \verb!stargazer(est,se=starprep(est.clust),type="text")!
+    \item[] \verb!modelsummary(est.clust)!
 \end{itemize}
 
 
@@ -399,13 +397,14 @@ It's important to know what's in your data by
 
 \begin{itemize}
     \item Declare a time series data frame
-    \item[] \verb!df.ts <- zoo(df, order.by=df$year)!
+    \item[] \verb!df.ts <- as_tsibble(df, key=id, index=year)!
     \item Time series line plot:
     \item[] \verb!ggplot(df.ts, aes(year, inf)) + geom_line()!
     \item Simple AR(1) model:
-    \item[] \verb!est <- dynlm(inf ~ L(inf,1), data=df.ts)!
+    \item[] \verb!est <- lm(inf ~ lag(inf,1), data=df.ts)!
     \item First-differences model:
-    \item[] \verb!est.diff <- dynlm(d(inf) ~ unem, data = df.ts)!
+    \item[] \verb!est.diff <- lm(difference(inf) ~ unem,!
+    \item[] \qquad\qquad\qquad\verb!data = df.ts)!
     \item ADF test for unit root:
     \item[] \verb!adf.test(df1.ts$inf, k=1)!
     \item ARIMA model:
@@ -486,17 +485,15 @@ The document requires the following packages:
 \begin{multicols}{4}
 \verb!tidyverse!  \\
 \verb!magrittr!  \\
-\verb!stargazer!  \\
 \verb!broom!  \\
-\verb!skimr! \\
+\verb!modelsummary! \\
 \verb!car!  \\
 \verb!estimatr!  \\
 \verb!lmtest!  \\
 \verb!clubSandwich!  \\
 \verb!sandwich!  \\
-\verb!zoo!  \\
-\verb!dynlm!  \\
 \verb!AER!  \\
+\verb!tsibble!  \\
 \verb!tseries!  \\
 \verb!lubridate!  \\
 \verb!forecast!  \\
