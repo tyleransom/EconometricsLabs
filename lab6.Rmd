@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 6"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "February 18, 2021"
+date: "September 14, 2021"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -57,7 +57,7 @@ Let's convert our 0/1 numeric variable `male` to a factor with levels `"male"` a
 df %<>% mutate(male = factor(male), male = fct_recode(male, yes = "1", no = "0"))
 ```
 
-The `%<>%` operator is shorthand for `df <- df %>% mutate(...)`. In other words, `%<>%` pipes forwards and then pipes everything backwards.
+The `df %<>% mutate(...)` uses the `%<>%` operator which is shorthand for `df <- df %>% mutate(...)`. In other words, `%<>%` pipes forwards and then pipes everything backwards. This saves a little bit on syntax if you want to overwrite your data frame.
 
 The first part of the `mutate()` function converts the 0/1 values to categories named `"0"` and `"1"`. The second part gives the categories more descriptive labels (`"male"` and `"female"`).
 
@@ -72,9 +72,9 @@ df %<>% mutate(ratemarr = factor(ratemarr),
         mutate(kids  = factor(kids), kids = fct_recode(kids, yes = "1", no = "0")) %>%
         mutate(affair = factor(affair), affair = fct_recode(affair, yes = "1", no = "0"))
 ```
-where we used multiple pipe operators (`%>%`) to do each factor recode in a separate step. (You could have also put them all into one giant `mutate()` statement.)
+where we used multiple pipe operators (`%>%`) to do each factor recode in a separate step. (We could have also put them all into one giant `mutate()` statement.)
 
-Do another `datasummary_skim(df,histogram=FALSE)` to make sure the code worked in the way I told you it would.
+Do another `datasummary_skim(df,histogram=FALSE)` to make sure the code worked in the way I told you it would. You'll notice that the factor variables now disappear from the `datasummary_skim()` output. To have them show up separately, follow the steps in the next section.
 
 ### Summary stats of factor variables
 You can look at the frequency of factor variables using the `datasummary_skim()` function from the `modelsummary` package, or by using the `table()` function:

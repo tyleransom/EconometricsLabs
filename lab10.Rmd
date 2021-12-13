@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 10"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "March 9, 2021"
+date: "September 30, 2021"
 output:
   html_document:
     df_print: paged
@@ -27,9 +27,10 @@ library(wooldridge)
 library(modelsummary)
 library(broom)
 library(car)
-library(pdfetch)
 library(magrittr)
 library(lmtest)
+# new packages installed today:
+library(pdfetch)
 library(sandwich)
 library(tsibble)
 library(COVID19)
@@ -46,7 +47,7 @@ df.ts <- as_tsibble(df, key=id, index=date)
 Now it will be easy to include lags of various variables into our regression models.
 
 ## Plot time series data
-Let's have a look at the data on new daily cases and deaths:
+Let's have a look at the data on **new** daily cases and deaths:
 ```{r}
 df.ts %<>% mutate(new_deaths = difference(deaths),    # data comes in cumulative format
                   new_tests  = difference(tests),     # "difference" converts it to

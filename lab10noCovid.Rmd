@@ -1,0 +1,90 @@
+---
+title: "In-Class Lab 10"
+author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
+date: "October 1, 2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+bibliography: biblio.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
+```
+
+The purpose of this in-class lab is to use R to practice estimating time series regression models with standard errors corrected for heteroskedasticity and serial correlation (HAC). To get credit, upload your .R script to the appropriate place on Canvas.
+
+## For starters
+First, install the `pdfetch`, `tsibble`, and `sandwich` packages. `pdfetch` stands for "Public Data Fetch" and is a slick way of downloading statistics on stock prices, GDP, inflation, unemployment, etc. `tsibble` is a package useful for working with time series data. It is the "tibble" for time series data.
+
+Open up a new R script (named `ICL10_XYZ.R`, where `XYZ` are your initials) and add the usual "preamble" to the top:
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# Add names of group members HERE
+library(tidyverse)
+library(wooldridge)
+library(broom)
+library(car)
+library(pdfetch)
+library(magrittr)
+library(lmtest)
+library(sandwich)
+library(tsibble)
+```
+
+### Load the data
+We're going to use data on US macroeconomic indicators. The `wooldridge` data set is called `intdef`.
+
+```{r}
+df.ts <- as_tsibble(intdef, key=NULL, index=year)
+```
+
+Now it will be easy to include lags of various variables into our regression models.
+
+## Plot time series data
+Let's have a look at the inflation rate for the US over the period 1948--2003:
+```{r}
+ggplot(df.ts, aes(year, inf)) + geom_line()
+```
+
+## Determinants of the interest rate
+Now let's estimate the following regression model:
+\[
+i3_{t} = \beta_0 + \beta_1 inf_t + \beta_2 inf_{t-1} + \beta_3 inf_{t-2} + \beta_4 def_{t} + u_t
+\]
+where $i3$ is the 3-month Treasury Bill interest rate, $inf$ is the inflation rate (as measured by the CPI), and $def$ is the budget deficit as a percentage of GDP.
+
+```{r}
+est <- lm(i3 ~ inf + lag(inf,1) + lag(inf,2) + def, data=df.ts)
+```
+
+1. Are any of these variables significant determinants of the interest rate? If so, which ones?
+
+## Correcting for Serial Correlation
+Now let's compute HAC (Heteroskedasticity and Autocorrelation Consistent) standard errors. To do so, we'll use the `NeweyWest` option in the `coeftest()` function of the `lmtest` package.[^2]
+
+```{r}
+coeftest(est) # re-display baseline results
+coeftest(est, vcov=NeweyWest)
+```
+
+2. How does your interpretation of the interest rate model change, using the Newey-West standard errors?
+
+### Another way to correct for serial correlation
+Another way to get rid of serial correlation is to *difference* the data. In this case, we will estimate the following regression:
+\[
+\Delta i3_{t} = \beta_0 + \beta_1 \Delta inf_t + \beta_2 \Delta inf_{t-1} + \beta_4 \Delta def_{t} + u_t
+\]
+where $\Delta x_{t} = x_{t}-x_{t-1}$ for any variable $x_{t}$. Aside from addressing serial correlation, the differenced model also accounts for people's interest rate expectations.
+
+```{r}
+est <- lm(difference(i3) ~ difference(inf) + lag(difference(inf),1) + lag(difference(inf),2) + difference(def), data=df.ts)
+```
+
+3. Compute the Newey-West SEs on the difference model. Are they much different from the baseline model?
+
+4. What do you conclude about the effect of inflation on the *change in* the interest rate?
+
+[^1]: You may need to install the `sandwich` package.
+[^2]: `NeweyWest` comes from the `sandwich` package.

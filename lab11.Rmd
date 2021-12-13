@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 11"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "March 11, 2021"
+date: "October 5, 2021"
 output:
   html_document:
     df_print: paged
@@ -80,9 +80,9 @@ cps_data <- read_ipums_micro(ddi)
 
 ### Need to work with value labels before you explore the data
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-cps_data %<>% mutate(educ =             as_factor(lbl_clean(EDUC)))
+cps_data %<>% mutate(educ = as_factor(lbl_clean(EDUC)))
 cps_data %<>% mutate(sex  = as_factor(lbl_clean(SEX)))
-cps_data %<>% mutate(age = as.numeric(AGE))
+cps_data %<>% mutate(age  = as.numeric(AGE))
 ```
 
 ### Now Explore the Data (e.g. Lab 1, Lab 2)

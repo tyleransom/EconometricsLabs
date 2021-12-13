@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 4"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "February 9, 2021"
+date: "September 7, 2021"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -64,9 +64,9 @@ mean(est1$residuals)
 ```
 
 ## Adding in non-linearities
-The previous regression model had an estimated intercept of `-19.3`, meaning that a home with no bedrooms and no square footage would be expected to have a sales price of -$19,300.
+The previous regression model had an estimated intercept of `-19.3`, meaning that a home with no bedrooms and no square footage would be expected to have a sale price of -$19,300.
 
-To fix this, let's instead use $log(price)$ as the dependent variable, and let's also add quadratic terms for `sqrft` and `bdrms`.
+To ensure that our model always predicts a positive sale price, let's instead use $log(price)$ as the dependent variable. Let's also add quadratic terms for `sqrft` and `bdrms` to allow those to exhibit diminishing marginal returns.
 
 First, let's use `mutate()` to add these new variables:
 ```{r}
@@ -77,6 +77,8 @@ Now run the new model:
 ```{r}
 est2 <- lm(logprice ~ sqrft + sqrftSq + bdrms + bdrmSq, data=df)
 modelsummary(est2)
+# or, for more decimals:
+modelsummary(est2, fmt = 10)
 ```
 
 The new coefficients have much smaller magnitudes. Explain why that might be.

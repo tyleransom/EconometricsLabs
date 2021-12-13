@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 15"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "April 15, 2021"
+date: "November 9, 2021"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---
@@ -113,7 +113,7 @@ We can put these all in one `modelsummary` table:
 ```{r, results = 'show'}
 modelsummary(list("POLS"=est.pols,"RE"=est.re,"FE"=est.fe),
              statistic_override=list(sqrt(diag(est.pols$vcov)),clust.re.SE,sqrt(diag(est.fe$vcov))),
-             output="latex")
+             output="markdown")
 ```
 
 7. Interpret the coefficient on `union` across the three models.

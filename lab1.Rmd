@@ -1,7 +1,7 @@
 ---
 title: "In-class Lab 1"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "January 26, 2021"
+date: "August 28, 2021"
 output:
   html_document:
     df_print: paged
@@ -91,7 +91,7 @@ Double-click on `df` in the Environment window. This will show you your data in 
 Let's look at the summary statistics of one of our variables. Suppose we want to know: What is the average years of education in our sample?
 
 ```{r}
-datasummary_skim(df) #then look at 'educ' column
+datasummary_skim(df, histogram=FALSE) #then look at 'educ' column
 ```
 
 In your script, write the value of the Mean of `educ`, preceded by a comment (the hashtag symbol)
@@ -100,7 +100,7 @@ What fraction of the sample is composed of women?
 ```{r}
 mean(df$female)
 # or
-datasummary_skim(df) #then look at 'female' column
+datasummary_skim(df, histogram=FALSE) #then look at 'female' column
 ```
 
 
@@ -120,7 +120,7 @@ Suppose you want to add a new variable to `df`. For example, the wage variable i
 ```{r}
 df <- df %>% mutate(realwage=wage*4.53)
 summary(df$realwage)
-datasummary_skim(df) # then look at realwage column
+datasummary_skim(df, histogram=FALSE) # then look at realwage column
 ```
 
 You can verify that `realwage` got added to `df` by clicking on the preview of `df` and scrolling all the way over to the right.
