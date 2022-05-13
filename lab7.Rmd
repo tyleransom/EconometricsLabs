@@ -1,11 +1,11 @@
 ---
 title: "In-Class Lab 7"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 16, 2021"
+date: "February 15, 2022"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
 bibliography: biblio.bib
 ---

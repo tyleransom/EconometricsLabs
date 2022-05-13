@@ -1,7 +1,7 @@
 ---
 title: "In-class Lab 3"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 2, 2021"
+date: "January 27, 2022"
 output:
   pdf_document: default
   html_document:
@@ -74,16 +74,17 @@ Create the log expenditures variable using `mutate()`:
 df <- df %>% mutate(logexpend = log(expend))
 ```
 
-Now estimate your model again and re-do the visualization:
+Now estimate your model again and re-do the visualization (showing both functional forms together):
 ```{r}
 est <- lm(math10 ~ logexpend, data=df)
 tidy(est)
 glance(est)
 modelsummary(est)
 
-ggplot(df,aes(logexpend,math10)) +
-    geom_point() +
-    geom_smooth(method='lm')
+ggplot(df, aes(expend,math10)) +
+  geom_point() +
+  stat_smooth(method = "lm", col = "red" ,se=F,formula = y~log(x)) +
+  stat_smooth(method = "lm", col = "blue",se=F)
 ```
 
 What is the interpretation of $\beta_1$ in this new model? (Add it as a comment in your R script)

@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 10"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 30, 2021"
+date: "March 1, 2022"
 output:
   html_document:
     df_print: paged
@@ -98,7 +98,8 @@ modelsummary(list(est,est),
 
 ## Oklahoma COVID cases
 ```{r}
-df.ok <- covid19(c("US"),level=2) %>% filter(key_alpha_2=="OK")
+df.ok <- covid19(c("US"),level=2) %>% 
+         filter(administrative_area_level_2=="Oklahoma")
 df.ts.ok <- as_tsibble(df.ok, key=id, index=date)
 df.ts.ok %<>% mutate(new_deaths = difference(deaths),
                      new_tests  = difference(tests),

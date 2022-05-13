@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 6"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "September 14, 2021"
+date: "February 8, 2022"
 output:
   pdf_document: default
   html_document:
@@ -52,14 +52,14 @@ datasummary_skim(df,histogram=FALSE)
 You'll notice that there are a number of variables that only take on 0/1 values: `male`, `kids`, `affair`, `hapavg`, `vryrel`, etc. There are also variables that take on a few different values: `relig`, `occup`, and `ratemarr`.
 
 ## Creating factor variables
-Let's convert our 0/1 numeric variable `male` to a factor with levels `"male"` and `"female"`:
+Let's convert our 0/1 numeric variable `male` to a factor with levels `"yes"` and `"no"`:
 ```{r}
 df %<>% mutate(male = factor(male), male = fct_recode(male, yes = "1", no = "0"))
 ```
 
 The `df %<>% mutate(...)` uses the `%<>%` operator which is shorthand for `df <- df %>% mutate(...)`. In other words, `%<>%` pipes forwards and then pipes everything backwards. This saves a little bit on syntax if you want to overwrite your data frame.
 
-The first part of the `mutate()` function converts the 0/1 values to categories named `"0"` and `"1"`. The second part gives the categories more descriptive labels (`"male"` and `"female"`).
+The first part of the `mutate()` function converts the 0/1 values to categories named `"0"` and `"1"`. The second part gives the categories more descriptive labels (`"yes"` and `"no"`).
 
 Let's repeat this for some of the other variables: `ratemarr`, `relig`, `kids`, and `affair`:
 ```{r}

@@ -1,7 +1,7 @@
 ---
 title: "In-Class Lab 11"
 author: "ECON 4223 (Prof. Tyler Ransom, U of Oklahoma)"
-date: "October 5, 2021"
+date: "March 3, 2022"
 output:
   html_document:
     df_print: paged
@@ -11,7 +11,7 @@ bibliography: biblio.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none')
+knitr::opts_chunk$set(echo = TRUE, results = 'hide', fig.keep = 'none', warning = FALSE, message = FALSE)
 ```
 
 The purpose of this in-class lab is to use R to import data. You don't need to turn this in on Canvas, but I am hopeful that this will be a useful reference for you.
